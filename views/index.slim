@@ -10,5 +10,11 @@ h2 Egna (slumpade)
 
 
 h2 Populära
-
+ol
+    - popular.each do |quiz|
+        li 
+            a href="quiz/#{quiz['id']}" #{quiz["name"]}
+            a href="quiz/#{quiz['id']}/edit" Ändra
+            form action="quiz/#{quiz['id']}/delete" method="post"
+                input type="submit" value="delete"
 

@@ -11,12 +11,12 @@ body
         img src="" alt="Logo"/
 
         nav
-            a href="/" Hem
-            a href="/quiz/new" Skapa quiz
-            a href="/user/:id/quizzes" Visa dina quiz 
+            a.button href="/" Hem
+            a.button href="/quiz/new" Skapa quiz
+            a.button href="/user/:id/quizzes" Visa dina quiz 
             / ^stoppa in användarens id. ska inte inkluderas om användaren inte är inloggad
-            a href="/quizzes" Visa alla publicerade quiz
-            a href="/login" Logga in
-            a href="/signup" Gå med
+            a.button href="/quizzes" Visa alla publicerade quiz
+            a.button href="/login" Logga in
+            a.button href="/signup" Gå med
     ==yield
   

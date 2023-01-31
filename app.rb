@@ -1,18 +1,21 @@
 require 'sinatra'
+require 'sinatra/reloader'
 require 'slim'
 require 'sqlite3'
 
 get('/')  do
-  slim(:index) # skicka med
+  db = SQLite3::Database.new("db/q.db")
+  db.results_as_hash = true
+  
+  random = db.execute("SELECT * FROM quizzes INNER JOIN quizzes_owners ON quizzes.id = quizzes_owners.quiz_id WHERE quizzes_owners.user_id = ? ORDER BY RANDOM() LIMIT 5")
+  often = db.execute("SELECT * FROM quizzes INNER JOIN quizzes_owners ON quizzes.id = quizzes_owners.quiz_id WHERE quizzes_owners.user_id = ? AND ORDER BY (SELECT COUNT(*) FROM quizzes_completions WHERE quiz_id = quizzes.id AND date > ? LIMIT 1) DESC LIMIT 5")
+  popular = db.execute("SELECT * FROM quizzes ORDER BY (SELECT COUNT(*) quizzes_likes WHERE quizzes_likes.quiz_id = quizzes.id LIMIT 1) DESC LIMIT 5")
+
+  slim(:"index", locals: {random:random, often:often, popular:popular})
 end
 
 get('/quizzes') do
-#   db = SQLite3::Database.new("db/q.db")
-#   db.results_as_hash = true
-  
-#   result = db.execute("SELECT * FROM albums")
 
-#   slim(:"albums/index",locals:{albums:result})
 end
 
 get('/user/:id') do
