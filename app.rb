@@ -12,22 +12,23 @@ def conn(path)
   return db
 end
 
-def sql_select(db, columns, from, join, where, values, order, limit)
-  sql = "SELECT " + columns + " FROM " + from + " " + join + " WHERE " + where + " ORDER BY " + order + " LIMIT " + limit
-  puts "Query: #{sql}"
-  return db.execute(sql, *values)
-end
-
 get('/') do
   if(session[:user_id] == nil)
     redirect('/forms')
   else
+
     db = conn("db/q.db")
-    join = "INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id"
-    quizzes = sql_select(db, "*", "quizzes", join, "quizzes_owners.user_id = ?", [session[:user_id].to_s], "id DESC", "10")
+    query = "SELECT * 
+    FROM quizzes 
+    INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id
+    WHERE quizzes_owners.user_id = ?
+    ORDER BY id DESC
+    LIMIT 10"
+    quizzes = db.execute(query, session[:user_id])
     puts "Result: #{quizzes}"
     db.close
-    slim(:index, locals:{quizzes:quizzes, session:session})
+
+    slim(:index, locals:{quizzes:quizzes})
   end
 end
 
@@ -46,7 +47,9 @@ post('/signup') do
     pwdigest = BCrypt::Password.create(pwd)
 
     db = conn("db/q.db")
-    db.execute('INSERT INTO users (name, uid, pwdigest) VALUES (?, ?, ?)', name, uid, pwdigest)
+    query = "INSERT INTO users 
+    (name, uid, pwdigest) VALUES (?, ?, ?)"
+    db.execute(query, name, uid, pwdigest)
     db.close
 
     redirect('/')
@@ -66,7 +69,11 @@ post('/login') do
   pwd = params[:pwd]
 
   db = conn("db/q.db")
-  result = db.execute('SELECT * FROM users WHERE uid = ?', uid).first
+  query = "SELECT * 
+  FROM users 
+  WHERE uid = ?
+  LIMIT 1"
+  result = db.execute(query, uid).first
   db.close
 
   if result
@@ -76,6 +83,7 @@ post('/login') do
     if BCrypt::Password.new(pwdigest) == pwd
       session[:user_id] = result['id']
       session[:user_uid] = result['uid']
+      session[:admin] = result['admin']
       redirect('/')
     else
       puts "Fel lösenord."
@@ -89,6 +97,7 @@ end
 
 post('/logout') do
   session[:user_id] = nil
+  session[:user_uid] = nil
   redirect('/')
 end
 
@@ -108,15 +117,55 @@ get('/quiz/:id') do
   id = params[:id]
 
   db = conn("db/q.db")
-  quiz = sql_select(db, "*", "quizzes", "", "quizzes.id = ?", [id.to_s], "id DESC", "1")
-  owners = sql_select(db, "*", "quizzes_owners", "", "quizzes_owners.quiz_id = ?", [id.to_s], "id DESC", "")
-  puts "Result: #{quizzes}"
+  query = "SELECT * 
+  FROM quizzes 
+  WHERE id = ?
+  LIMIT 1"
+  quiz = db.execute(query, id)
+  puts "Quiz: #{quiz}"
+  query = "SELECT * 
+  FROM quizzes_owners 
+  WHERE quiz_id = ?"
+  owners = db.execute(query, id)
+  puts "Owners: #{owners}"
+
+  access = false
+  owners.each do |owner|
+    if owner['user_id'] == session[:user_id]
+      access = true
+    end
+  end
+
+  query = "SELECT * 
+  FROM questions
+  WHERE quiz_id = ?"
+  questions = db.execute(query, id)
+  puts "Questions: #{questions}"
+  query = "SELECT *
+  FROM answers
+  INNER JOIN questions ON questions.id = answers.question_id 
+  WHERE questions.quiz_id = ?"
+  answers = db.execute(query, id)
+  puts "Answers: #{answers}"
+
   db.close
 
-  case quiz[]
-  access = 
+  tmp1 = []
+  questions.each do |question|
+    tmp2 = {'question' => question}
+    tmp3 = []
+    answers.each do |answer|
+      if answer['quiz_id'] == question['id']
+        tmp3 << answer
+      end
+    end
+    tmp2['answers'] = tmp3
+    tmp1 << tmp2
+  end
 
-  slim(:"quiz/index", locals:{id:id})
+  questions = tmp1
+
+  slim(:"quiz/index", locals:{id:id, access:access, quiz:quiz, questions:questions})
 end
 
 get('/quiz/:id/edit') do

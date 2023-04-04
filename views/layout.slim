@@ -6,6 +6,7 @@ html lang="en"
         meta http-equiv="X-UA-Compatible" content="ie=edge"/
         link rel="stylesheet" href="/css/style.css"/
         title QuizSite
+        script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"
 body
     - if session[:user_id] != nil
         header
@@ -14,5 +15,9 @@ body
                 a.button href="/quiz/new" Skapa
                 form method="post" action="/logout"
                     button.button type="submit" Logga ut
+                - if session[:admin] == 1
+                    a.button href="/all" Skapa
     ==yield
-  
+    - if session[:user_id] != nil
+        footer
+    script src="/js/script.js" 

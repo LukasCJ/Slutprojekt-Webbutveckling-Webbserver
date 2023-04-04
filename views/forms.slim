@@ -1,11 +1,14 @@
-form action="login" method="post"
-  input type="text" name="uid" placeholder="Ange användarnamn"
-  input type="password" name="pwd" placeholder="Ange lösenord"
-  input type="submit" name="login" Logga in
-form action="signup" method="post"
-  input type="text" name="uid" placeholder="Ange användarnamn"
-  input type="text" name="name" placeholder="Ange namn"
-  input type="password" name="pwd" placeholder="Ange lösenord"
-  input type="password" name="pwd_confirm" placeholder="Ange lösenord igen"
-  input type="submit" name="signup" Gå med
-  
+section#forms
+  .form_container.signup
+    form action="login" method="post"
+      input type="text" name="uid" placeholder="Ange användarnamn"
+      input type="password" name="pwd" placeholder="Ange lösenord"
+      button.button type="submit" name="login" Logga in
+    form action="signup" method="post"
+      input type="text" name="uid" placeholder="Ange användarnamn"
+      input type="text" name="name" placeholder="Ange namn"
+      input type="password" name="pwd" placeholder="Ange lösenord"
+      input type="password" name="pwd_confirm" placeholder="Ange lösenord igen"
+      button.button type="submit" name="signup" Gå med
+  .button_container
+    button.button.switch_forms type="button" Byt formulär

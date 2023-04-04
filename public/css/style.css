@@ -8,10 +8,13 @@ body {
     --gcolor0: rgb(0, 0, 0);
     --gcolor11: rgb(252, 250, 247);
     --gcolor12: rgb(245, 239, 226);
+    --gcolor13: rgb(188, 200, 212);
     --gcolor21: rgb(210, 74, 115);
-    --gcolor22: rgb(149, 55, 79);
+    --gcolor22: rgb(134, 52, 70);
     --gcolor31: rgb(119, 98, 216);
     --gcolor32: rgb(70, 47, 122);
+    --gcolor41: rgb(115, 207, 141);
+    --gcolor42: rgb(68, 165, 112);
     --len1: 2rem;
     --len2: calc(var(--len1) * 5);
     --b: 3px;
@@ -29,17 +32,13 @@ li {
     list-style: none;
 }
 
-button:hover {
-    cursor: pointer;
-}
-
 .button {
     display: flex;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
     width: max-content;
-    height: calc(var(--len1) * 3/2) !important;
+    height: calc(var(--len1) * 3/2);
     padding: calc(var(--len1)/2);
     font-size: calc(var(--len1)/2);
     color: var(--gcolor11);
@@ -51,6 +50,12 @@ button:hover {
     font-style: normal;
     font-family: var(--gfont1);
     box-shadow: rgba(27, 27, 27, 0.2) 0px 2px 8px 0px;
+    transition: color ease 0.2s;
+}
+
+.button:hover {
+    color: var(--gcolor12);
+    cursor: pointer;
 }
 
 header {
@@ -71,6 +76,10 @@ nav {
     box-sizing: border-box;
 }
 
+footer {
+    height: var(--len1);
+}
+
 section#yours {
     padding-top: var(--len1);
     display: flex;
@@ -85,7 +94,7 @@ p.user_id {
     color: var(--gcolor31);
 }
 
-section#yours > div.container {
+section#yours > .container {
     width: calc(var(--len2) * 5);
     display: flex;
     flex-direction: column;
@@ -98,20 +107,42 @@ ul.quiz_list {
 
 ul.quiz_list li {
     width: 100%;
-    height: calc(var(--len1) * 4);
+    height: max-content;
     background-color: var(--gcolor31);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: var(--len1);
     box-sizing: border-box;
     border-radius: var(--b);
 }
-ul.quiz_list li div.left {
+ul.quiz_list li .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+ul.quiz_list li .top .left {
     width: max-content;
     display: flex;
     align-items: center;
     column-gap: var(--len1);
+}
+ul.quiz_list li .desc_container {
+    display: flex;
+    align-items: center;
+    height: 0;
+    color: var(--gcolor11);
+    font-weight: 600;
+    font-style: normal;
+    font-family: var(--gfont1);
+    border-top: 0;
+    margin-top: 0;
+    filter: opacity(0);
+    transition: height ease 0.2s, margin ease 0.2s, border ease 0.2s, filter ease 0.2s;
+}
+ul.quiz_list li .desc_container.open {
+    display: flex;
+    height: var(--len1);
+    border-top: var(--b) solid var(--gcolor11);
+    margin-top: var(--len1);
+    filter: opacity(1);
 }
 
 a.play {
@@ -126,6 +157,7 @@ a.play {
     border: var(--b) solid var(--gcolor11);
     box-sizing: border-box;
     box-shadow: rgba(27, 27, 27, 0.2) 0px 2px 8px 0px;
+    font-weight: 600;
 }
 
 h2.yours {
@@ -134,4 +166,261 @@ h2.yours {
 
 h2.quiz_name {
     color: var(--gcolor11);
+}
+
+section#quiz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+div.denied_container {
+    height: max-content;
+    width: calc(var(--len2) * 2);
+    background-color: var(--gcolor21);
+    padding: var(--len1);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: calc(var(--len1) / 2);
+    margin-top: var(--len1);
+    border-radius: var(--b);
+}
+
+div.denied_container h2.denied {
+    color: var(--gcolor11)
+}
+
+div.denied_container .button {
+    background-color: var(--gcolor22)
+}
+
+div.ready_container {
+    height: max-content;
+    width: calc(var(--len2) * 2);
+    background-color: var(--gcolor31);
+    padding: var(--len1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: calc(var(--len1) / 2);
+    margin-top: var(--len1);
+    border-radius: var(--b);
+}
+
+div.ready_container h2.ready {
+    color: var(--gcolor11)
+}
+
+section#forms {
+    /* height: 100vh; */
+    overflow: hidden;
+}
+
+.form_container {
+    margin-top: calc(var(--len1) * 3);
+    width: 200%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    column-gap: var(--len1);
+    position: relative;
+    box-sizing: border-box;
+    transition: left ease 0.3s;
+}
+
+.form_container.login {
+    left: 0vw;
+}
+.form_container.signup {
+    left: -100vw;
+}
+
+.button_container {
+    margin-top: var(--len1);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+section#forms form {
+    background-color: var(--gcolor31);
+    
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--len1);
+
+    padding: var(--len1);
+    border-radius: var(--b);
+}
+
+/* section#forms form[action="login"].off { left: -200px;; }
+section#forms form[action="signup"].off { left: 2000px; } */
+
+input[type="text"], input[type="password"] {
+    width: calc(var(--len1) * 6);
+    height: var(--len1);
+    border: var(--b) solid var(--gcolor32);
+    transition: border ease 0.4s;
+    padding: 0 calc(var(--b) * 2) 0 calc(var(--b) * 2);
+    box-sizing: border-box;
+    border-radius: var(--b);
+    font-weight: 600;
+    font-style: normal;
+    font-family: var(--gfont1);
+    background-color: var(--gcolor11);
+}
+
+input:focus {
+    outline: none;
+    border: var(--b) solid var(--gcolor42) !important;
+}
+
+select {
+    height: var(--len1);
+    border: var(--b) solid var(--gcolor32);
+    transition: border ease 0.4s;
+    padding: 0 calc(var(--b) * 2) 0 calc(var(--b) * 2);
+    box-sizing: border-box;
+    border-radius: var(--b);
+    font-weight: 600;
+    font-style: normal;
+    font-family: var(--gfont1);
+    background-color: var(--gcolor11);
+}
+
+select:focus {
+    outline: none;
+    border: var(--b) solid var(--gcolor42);
+}
+
+section#forms form button {
+    width: calc(var(--len1) * 6);
+}
+
+form[action="/quiz/create"] {
+    min-width: max-content;
+    width: calc(var(--len1) * 8);
+    background-color: var(--gcolor31);
+    
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--len1);
+
+    padding: var(--len1);
+    border-radius: var(--b);
+}
+
+form[action="/quiz/create"] input[type="text"] {
+    width: 100%;
+}
+
+section#create {
+    padding-top: var(--len1);
+    display: flex;
+    justify-content: center;
+    position: relative;
+    column-gap: var(--len1);
+}
+
+section#create .container {
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    row-gap: calc(var(--len1)/2);
+}
+
+.checkbox_container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h2.create {
+    color: var(--gcolor31);
+}
+
+h2.content {
+    color: var(--gcolor31);
+}
+
+.content_container {
+    min-width: max-content;
+    width: calc(var(--len1) * 8);
+    background-color: var(--gcolor31);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    row-gap: var(--len1);
+
+    padding: var(--len1);
+    border-radius: var(--b);
+}
+
+section#create .buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.question, .answer {
+    background-color: var(--gcolor32);
+    display: flex;
+    align-items: center;
+    column-gap: calc(var(--len1)/3);
+    padding: calc(var(--len1) * 0.75);
+    border: 0 solid var(--gcolor11);
+    box-sizing: border-box;
+    border-radius: var(--b);
+    box-shadow: rgba(27, 27, 27, 0.2) 0px 2px 8px 0px;
+}
+
+.question {
+    width: 100%;
+    background-color: var(--gcolor32);
+    
+    display: flex;
+
+    padding: calc(var(--len1) * 0.7);
+    border: var(--b) solid var(--gcolor32);
+    box-sizing: border-box;
+    border-radius: var(--b);
+}
+
+.answer {
+    width: calc(var(--len1) * 8);
+    background-color: var(--gcolor32);
+    
+    display: flex;
+
+    padding: calc(var(--len1) * 0.75);
+    border: var(--b) solid var(--gcolor32);
+    box-sizing: border-box;
+    border-radius: var(--b);
+}
+
+.question.focus, .answer.focus {
+    border: var(--b) solid var(--gcolor11);
+}
+
+.question .button, .answer .button {
+    background-color: var(--gcolor31);
+    height: unset !important;
+    padding: calc(var(--len1)/4);
+    font-size: calc(var(--len1)/2.5);
+}
+
+.question input, .answer input {
+    width: 100%;
+    height: 100%;
+    border: var(--b) solid var(--gcolor31);
+}
+
+p.num {
+    color: var(--gcolor13);
 }
