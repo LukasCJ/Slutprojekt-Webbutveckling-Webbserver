@@ -25,35 +25,45 @@ $('section#forms .button.switch_forms').click(function() {
     }
 });
 
-$('section#create .question .button.delete, section#create .answer .button.delete').click(function() {
-    console.log('hey');
-    var question_numbers = []
-    $('.content_container .question, .content_container .answer').each(function() {
-        question_numbers.push($(this).data('local-id')); 
-    });
-    Math.floor(Math.max(...question_numbers));
-    $('.content_container .question, .content_container .answer').each(function() {
-        // if($(this).data('local-id') >= )
-        question_numbers.push($(this).data('local-id')); 
-    });
+$('section#create .button.delete, section#create .button.delete').click(function() {
+
 });
 
 $('section#create .button.add_question').click(function() {
-    var item, item_q_id, q_id;
-    if($('.question.focus').length == 1) {
-        item = $('.question.focus');
-        item_q_id = parseInt(item.data('q-id'));
-        q_id = item_q_id+1;
-        if($('.answer[data-q-id="'+item_q_id+'"]').length > 0) {
-            $('.answer[data-q-id="'+item_q_id+'"]').last().after('<div class="question" data-q-id="' + q_id + '"><p class="num">#' + q_id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>');
-        } else {
-            item.after('<div class="question" data-q-id="' + q_id + '"><p class="num">#' + q_id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>')
+    var item, item_q_id, q_id, a_id;
+    if($('.focus').length == 1) {
+
+        $('.question').each(function() {
+            if(parseInt($(this).data('q-id')) > parseInt($('.focus').data('q-id'))) {
+                q_id = parseInt($(this).data('q-id'))+1;
+                $(this).attr('data-q-id', q_id);
+                $(this).find('p.num').text(`#${q_id}`);
+            }
+        });
+        $('.answer').each(function() {
+            if(parseInt($(this).data('q-id')) > parseInt($('.focus').data('q-id'))) {
+                q_id = parseInt($(this).data('q-id'))+1;
+                a_id = parseInt($(this).data('q-id'));
+                $(this).attr('data-q-id', q_id);
+                $(this).find('p.num').text(`#${q_id}.${a_id}`);
+            }
+        });
+
+        if($('.question.focus').length == 1) {
+            item = $('.question.focus');
+            item_q_id = parseInt(item.data('q-id'));
+            q_id = item_q_id+1;
+            if($(`.answer[data-q-id="${item_q_id}"]`).length > 0) {
+                $(`.answer[data-q-id="${item_q_id}"]`).last().after(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`);
+            } else {
+                item.after(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`)
+            }
+        } else if($('.answer.focus').length == 1) {
+            item = $('.answer.focus');
+            item_q_id = parseInt(item.data('q-id'));
+            q_id = item_q_id+1;
+            $(`.answer[data-q-id="${item_q_id}"]`).last().after(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`);
         }
-    } else if($('.answer.focus').length == 1) {
-        item = $('.answer.focus');
-        item_q_id = parseInt(item.data('q-id'));
-        q_id = item_q_id+1;
-        $('.answer[data-q-id="'+item_q_id+'"]').last().after('<div class="question" data-q-id="' + q_id + '"><p class="num">#' + q_id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>');
     } else {
         var hi = 1;
         $('.question, .answer').each(function() {
@@ -65,32 +75,65 @@ $('section#create .button.add_question').click(function() {
             }
         });
         q_id = hi+1;
-        $('.content_container').append('<div class="question" data-q-id="' + q_id + '"><p class="num">#' + q_id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>');
+        $('.content_container').append(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`);
     }
 });
 
-// $('section#create .button.add_answer').click(function() {
+$('section#create .button.add_answer').click(function() {
+    var item, item_q_id, item_a_id, q_id, a_id;
+    if($('.focus').length == 1) {
 
-// item = $('.answer.focus');
-// item_q_id = parseInt(item.data('q-id'));
-// item_a_id = parseInt(item.data('a-id'));
-// a_id = item_a_id+1;
-// item.after('<div class="question" data-local-id="' + q_id + '"><p class="num">#' + q_id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>');
+        if($('.question.focus').length == 1) {
 
-//     console.log('hey');
-//     let question_numbers = []
-//     $('.content_container .question, .content_container .answer').each(function() {
-//         question_numbers.push($(this).data('local-id'));
-//         console.log(question_numbers); 
-//     });
-//     let hi = Math.max(...question_numbers);
-//     if(Number.isInteger(hi)) {
-//         var id = hi + 1;
-//     } else {
-//         var id = Math.ceil(hi);
-//     }
-//     $('.content_container').append('<div class="question" data-local-id="' + id + '"><p class="num">#' + id + '</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>');
-// });
+            item = $('.question.focus');
+            q_id = parseInt(item.data('q-id'));
+
+            if($(`.answer[data-q-id="${q_id}"]`).length > 0) {
+
+                var hi = 1;
+                $(`.answer[data-q-id="${q_id}"]`).each(function() {
+                    item_a_id = parseInt($(this).data('a-id'));
+                    if(item_a_id > hi) {
+                        hi = item_a_id;
+                    }
+                });
+                a_id = hi+1;
+
+                $(`.answer[data-q-id="${q_id}"]`).last().after(`<div class="answer" data-q-id="${q_id}" data-a-id="${a_id}"><p class="num">#${q_id}.${a_id}</p><input placeholder="Svar" type="text" /><button class="button delete" type="button">Radera</button></div>`);
+            } else {
+                item.after(`<div class="answer" data-q-id="${q_id}" data-a-id="1"><p class="num">#${q_id}.1</p><input placeholder="Svar" type="text" /><button class="button delete" type="button">Radera</button></div>`);
+            }
+
+        } else if($('.answer.focus').length == 1) {
+
+            $('.answer').each(function() {
+                if(parseInt($(this).data('q-id')) > parseInt($('.focus').data('q-id'))) {
+                    q_id = parseInt($(this).data('q-id'))+1;
+                    a_id = parseInt($(this).data('q-id'));
+                    $(this).attr('data-q-id', q_id);
+                    $(this).find('p.num').text(`#${q_id}.${a_id}`);
+                }
+            });
+
+            item = $('.answer.focus');
+            item_q_id = parseInt(item.data('q-id'));
+            q_id = item_q_id+1;
+            $(`.answer[data-q-id="${item_q_id}"]`).last().after(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`);
+        }
+    } else {
+        var hi = 1;
+        $('.question, .answer').each(function() {
+            item_q_id = parseInt($(this).data('q-id'));
+            console.log(item_q_id);
+            if(item_q_id > hi) {
+                hi = item_q_id;
+                console.log(hi);
+            }
+        });
+        q_id = hi+1;
+        $('.content_container').append(`<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`);
+    }
+});
 
 });
 
