@@ -1,12 +1,40 @@
 
-function makeQuestion(q_id) {
-    return `<div class="question" data-q-id="${q_id}"><p class="num">#${q_id}</p><input placeholder="Fråga" type="text" /><button class="button delete" type="button">Radera</button></div>`;
+function makeQuestion(qid) {
+    return `<div class="question" qid="${qid}"><p class="num">#${qid}</p><input placeholder="Fråga" type="text" />`;
 }
 
-function makeAnswer(q_id, a_id) {
-    return `<div class="answer" data-q-id="${q_id}" data-a-id="${a_id}"><p class="num">#${q_id}.${a_id}</p><input placeholder="Svar" type="text" /><button class="button delete" type="button">Radera</button></div>`;
+function makeAnswer(qid, aid) {
+    return `<div class="answer" qid="${qid}" aid="${aid}"><p class="num">#${qid}.${aid}</p><input placeholder="Svar" type="text" /><select name="status"><option value="incorrect">Fel</option><option value="correct">Rätt</option></select></div>`;
 }
 
+function prepareCreate() {
+    var content = [];
+    var q, a, qid;
+
+    if($('.question').length == 0) { return; } // validering
+
+    $('.question').each(function() {
+        q = {}; // object
+        q['answers'] = []
+
+        qid = parseInt($(this).attr('qid'));
+        if($(`.answer[qid="${qid}"]`).length == 0) { return; } // validering
+        q['id'] = qid;
+        q['text'] = $(this).find('input[name="question"]').first().val();
+
+        $(`.answer[qid="${qid}"]`).each(function() {
+            a = {}; // object
+            a['id'] = parseInt($(this).attr('aid'));
+            a['text'] = $(this).find('input[name="answer"]').first().val();
+            a['status'] = $(this).find('select[name="status"]').first().val();
+            q['answers'].push(a);
+        })
+        content.push(q);
+    });
+    var json = JSON.stringify(content);
+    console.log(json);
+    $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}'>`);
+}
 
 $(document).ready(function() {
 
@@ -43,93 +71,134 @@ $('section#create .content_container').on('click', '.question, .answer, .questio
         $('.question, .answer').removeClass('focus');
         $(this).addClass('focus');
     }
+    prepareCreate();
 });
 
 $('section#create .button.add_question').click(function() { // skapar ny fråga
-    var item, item_q_id, q_id, a_id;
+    var item, item_qid, qid, aid;
+    if($('.question').length > 100) { return } // validering, max 100 frågor per quiz
+
     if($('.focus').length == 1) { // om någon fråga eller något svar är valt
 
         item = $('.focus');
-        item_q_id = parseInt(item.data('q-id')); // hämtar question id från valt element
+        item_qid = parseInt(item.attr('qid')); // hämtar question id från valt element
 
-        $(`.focus ~ .question, .focus ~ .answer:not(.answer[data-q-id="${item_q_id}"])`).each(function() { // uppdaterar värden för frågor och svar som kommer hamna efter den nya frågan (egentligen efter det valda elementet, men det är samma sak)
+        $(`.focus ~ .question, .focus ~ .answer:not(.answer[qid="${item_qid}"])`).each(function() { // uppdaterar värden för frågor och svar som kommer hamna efter den nya frågan (egentligen efter det valda elementet, men det är samma sak)
             if($(this).hasClass('question')) {
-                q_id = parseInt($(this).data('q-id'))+1; // skapar nytt question id
-                $(this).attr('data-q-id', q_id); // stoppar in nytt q-id i datan
-                $(this).find('p.num').text(`#${q_id}`); // stoppar in nytt q-id i texten
+                qid = parseInt($(this).attr('qid'))+1; // skapar nytt question id
+                $(this).attr('qid', qid); // stoppar in nytt qid i datan
+                $(this).find('p.num').text(`#${qid}`); // stoppar in nytt qid i texten
             } else if($(this).hasClass('answer')) {
-                q_id = parseInt($(this).data('q-id'))+1;
-                a_id = parseInt($(this).data('a-id'));
-                $(this).attr('data-q-id', q_id);
-                $(this).find('p.num').text(`#${q_id}.${a_id}`);
+                qid = parseInt($(this).attr('qid'))+1;
+                aid = parseInt($(this).attr('aid'));
+                $(this).attr('qid', qid);
+                $(this).find('p.num').text(`#${qid}.${aid}`);
             }
         });
         
-        q_id = item_q_id+1; // definierar question id för den nya frågan
+        qid = item_qid+1; // skapar nytt question id
 
-        if($('.question.focus').length == 1) { // om det är en fråga som är vald
-            if($(`.answer[data-q-id="${item_q_id}"]`).length > 0) { // om den valda frågan har svar
-                $(`.answer[data-q-id="${item_q_id}"]`).last().after(makeQuestion(q_id)); // skapar frågan efter det sista svaret med samma question id som det den valda frågan
+        if(item.hasClass('question')) { // om det är en fråga som är vald
+            if($(`.answer[qid="${item_qid}"]`).length > 0) { // om den valda frågan har svar
+                $(`.answer[qid="${item_qid}"]`).last().after(makeQuestion(qid)); // skapar frågan efter det sista svaret med samma question id som det den valda frågan
             } else {
-                item.after(makeQuestion(q_id));
+                item.after(makeQuestion(qid));
             }
-        } else if($('.answer.focus').length == 1) { // om det är ett svar som är valt
-            $(`.answer[data-q-id="${item_q_id}"]`).last().after(makeQuestion(q_id)); // skapar frågan efter det sista svaret med samma question id som det valda svaret
+        } else if(item.hasClass('answer')) { // om det är ett svar som är valt
+            $(`.answer[qid="${item_qid}"]`).last().after(makeQuestion(qid)); // skapar frågan efter det sista svaret med samma question id som det valda svaret
         }
     } else { // om inget element är valt
         item = $('.question').last();
-        q_id = parseInt(item.data('q-id'))+1;
-        item.parent().append(makeQuestion(q_id)); // lägger ny fråga sist i listan
+        qid = parseInt(item.attr('qid'))+1;
+        item.parent().append(makeQuestion(qid)); // lägger ny fråga sist i listan
     }
 });
 
 $('section#create .button.add_answer').click(function() { // skapar nytt svar
-    var item, item_a_id, q_id, a_id;
+    var item, qid, aid;
     if($('.focus').length == 1) { // om någon fråga eller något svar är valt
 
-        if($('.question.focus').length == 1) { // om det är en fråga som är vald
+        item = $('.focus');
+        if(item.hasClass('question')) { // om det är en fråga som är vald
 
-            item = $('.question.focus'); 
-            q_id = parseInt(item.data('q-id')); // hämtar question id från valt element (vilket är samma q-id som det nya svaret ska få)
+            qid = parseInt(item.attr('qid')); // hämtar question id från valt element (vilket är samma qid som det nya svaret ska få)
+            if($(`.answer[qid="${qid}"]`).length > 12) { return } // validering, max 12 svar per fråga
 
-            if($(`.answer[data-q-id="${q_id}"]`).length > 0) { // om den valda frågan har svar
-                item = $(`.answer[data-q-id="${q_id}"]`).last(); 
-                a_id = parseInt(item.data('a-id'))+1;
-                item.after(makeAnswer(q_id, a_id)); // skapar svaret efter det sista svaret med samma question id som den valda frågan
+            if($(`.answer[qid="${qid}"]`).length > 0) { // om den valda frågan har svar
+                item = $(`.answer[qid="${qid}"]`).last(); 
+                aid = parseInt(item.attr('aid'))+1;
+                item.after(makeAnswer(qid, aid)); // skapar svaret efter det sista svaret med samma question id som den valda frågan
             } else {
-                item.after(makeAnswer(q_id, 1));
+                item.after(makeAnswer(qid, 1));
             }
 
-        } else if($('.answer.focus').length == 1) { // om det är ett svar som är valt
+        } else if(item.hasClass('answer')) { // om det är ett svar som är valt
 
-            item = $('.answer.focus');
-            q_id = parseInt(item.data('q-id'));
-            item_a_id = parseInt(item.data('q-id'));
+            qid = parseInt(item.attr('qid'));
+            if($(`.answer[qid="${qid}"]`).length > 12) { return } // validering, max 12 svar per fråga
 
-            $(`.answer.focus ~ .answer[data-q-id="${q_id}"]`).each(function() { // uppdaterar värden för svar som kommer hamna efter det nya svaret (egentligen efter det valda svaret, men det är samma sak)
-                a_id = parseInt($(this).data('a-id'))+1; // skapar nytt answer id
-                $(this).attr('data-a-id', a_id); // stoppar in nytt a-id i data
-                $(this).find('p.num').text(`#${q_id}.${a_id}`); // stoppar in nytt id i texten
+            $(`.answer.focus ~ .answer[qid="${qid}"]`).each(function() { // uppdaterar värden för svar som kommer hamna efter det nya svaret (egentligen efter det valda svaret, men det är samma sak)
+                aid = parseInt($(this).attr('aid'))+1; // skapar nytt answer id
+                $(this).attr('aid', aid); // stoppar in nytt aid i data
+                $(this).find('p.num').text(`#${qid}.${aid}`); // stoppar in nytt id i texten
             });
 
-            a_id = item_a_id+1;
-            item.after(makeAnswer(q_id, a_id)); // skapar svaret efter det valda svaret
+            aid = parseInt(item.attr('qid'))+1;
+            item.after(makeAnswer(qid, aid)); // skapar svaret efter det valda svaret
         }
     } else { // om inget element är valt
+
         item = $('.question').last();
-        q_id = item.data('q-id');
-        if($(`.answer[data-q-id="${q_id}"]`).length > 0) {
-            item = $(`.answer[data-q-id="${q_id}"]`).last();
-            a_id = parseInt(item.data('a-id'))+1;
-            item.after(makeAnswer(q_id, a_id)); // skapar svaret efter det sista svaret efter den sista frågan
+        qid = item.attr('qid');
+        if($(`.answer[qid="${qid}"]`).length > 12) { return } // validering, max 12 svar per fråga
+
+        if($(`.answer[qid="${qid}"]`).length > 0) {
+            item = $(`.answer[qid="${qid}"]`).last();
+            aid = parseInt(item.attr('aid'))+1;
+            item.after(makeAnswer(qid, aid)); // skapar svaret efter det sista svaret efter den sista frågan
         } else {
-            item.after(makeAnswer(q_id, 1));
+            item.after(makeAnswer(qid, 1));
         }
     }
 });
 
-$('section#create .button.delete, section#create .button.delete').click(function() {
+$('section#create .button.delete').click(function() { // raderar valt element (fråga eller svar)
+    var item_qid, qid, item_aid, aid;
+    if($('.focus').length == 1) {
+        const item = $('.focus');
+        if(item.hasClass('question')) {
 
+            if($('.question').length == 1) { return } // validering, man kan inte slänga alla frågor, det måsta alltid finnas minst en
+
+            item_qid = parseInt(item.attr('qid'));
+            $(`.question[qid="${item_qid}"] ~ .question, .question[qid="${item_qid+1}"] ~ .answer`).each(function() { // uppdaterar värden för frågor och svar som ligger efter dem frågan som ska raderas
+                if($(this).hasClass('question')) {
+                    qid = parseInt($(this).attr('qid'))-1; // skapar nytt question id
+                    $(this).attr('qid', qid); // stoppar in nytt qid i datan
+                    $(this).find('p.num').text(`#${qid}`); // stoppar in nytt qid i texten
+                } else if($(this).hasClass('answer')) {
+                    qid = parseInt($(this).attr('qid'))-1;
+                    aid = parseInt($(this).attr('aid'));
+                    $(this).attr('qid', qid);
+                    $(this).find('p.num').text(`#${qid}.${aid}`);
+                }
+            });
+
+            $(`.answer[qid="${item_qid}"]`).remove();
+    
+        } else if(item.hasClass('answer')) {
+    
+            item_qid = parseInt(item.attr('qid'));
+            item_aid = parseInt(item.attr('aid'));
+            $(`.answer[aid="${item_aid}"] ~ .answer[qid="${item_qid}"]`).each(function() { // uppdaterar värden för svar (med samma qid som det svaret som ska raderas) som ligger efter det svaret som ska raderas
+                aid = parseInt($(this).attr('aid'))-1; // skapar nytt answer id
+                $(this).attr('aid', aid); // stoppar in nytt aid i data
+                $(this).find('p.num').text(`#${qid}.${aid}`); // stoppar in nytt id i texten
+            });
+    
+        }
+        item.remove();
+    }  
 });
 
 });

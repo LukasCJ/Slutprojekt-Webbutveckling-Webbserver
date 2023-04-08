@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'slim'
 require 'sqlite3'
 require 'bcrypt'
+require 'json'
 
 enable :sessions
 
@@ -105,12 +106,18 @@ get('/quiz/new') do
   slim(:"quiz/new")
 end
 
-get('/quiz/new') do
-  slim(:"quiz/new")
-end
+post('/quiz/create') do
+  title = params[:title]
+  desc = params[:description]
+  order = params[:order]
+  content = JSON.parse(params[:content])
+  
+  db = conn("db/q.db")
+  query = ""
+  db.execute(query, )
+  db.close
 
-post('/quiz') do # create
-  redirect('/')
+  # redirect('/')
 end
 
 get('/quiz/:id') do

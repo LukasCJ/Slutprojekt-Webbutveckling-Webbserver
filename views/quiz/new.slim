@@ -1,7 +1,7 @@
 section#create
     .container
         h2.create Skapa ett quiz 
-        form action="/quiz/create" method="post"
+        form action="/quiz/create" method="post" onsubmit="prepareCreate()"
             input type="text" name="title" placeholder="Quiz-titel"
             input type="text" name="description" placeholder="Beskrivning"
             div.checkbox_container
@@ -10,6 +10,7 @@ section#create
                     option value="allow-both" Tillåt båda
                     option value="force-random" Tvinga slumpmässig
                     option value="force-given" Tvinga angiven
+            input type="text" name="owners" placeholder="Lägg till behöriga"
             .buttons 
                 button.button.create type="submit" Skapa
                 a.button.cancel href="/" Avbryt
@@ -19,11 +20,13 @@ section#create
             .buttons
                 button.button.add_question type="button" + Fråga
                 button.button.add_answer type="button" + Svar
-            .question data-q-id="1"
+                button.button.delete type="button" Släng
+            .question qid="1"
                 p.num #1
-                input type="text" placeholder="Fråga"
-                button.button.delete type="button" Radera
-            .answer.correct data-q-id="1" data-a-id="1"
+                input type="text" name="question" placeholder="Fråga"
+            .answer qid="1" aid="1"
                 p.num #1.1
-                input type="text" placeholder="Svar"
-                button.button.delete type="button" Radera
+                input type="text" name="answer" placeholder="Svar"
+                select name="status"
+                    option value="incorrect" Fel
+                    option value="correct" Rätt
