@@ -236,131 +236,55 @@ get('/quiz/:id/edit') do
 end
 
 post('/quiz/:id/update') do # används för både update (inklusive add collaborator) & delete
-  if params[:name] != nil
-    p 'yo'
-    name = params[:name]
+  quiz_id = params[:id]
+
+  db = conn("db/q.db")
+  if params[:delete] == 1
+    query = "DELETE FROM quizzes WHERE id = ?; DELETE FROM questions WHERE quiz_id = ?; DELETE FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE question.quiz_id = ?"
+    db.execute(query, quiz_id, quiz_id, quiz_id)
+    redirect('/')
   end
 
-  if params[:desc] != nil
-    p 'yo'
-    desc = params[:desc]
-  end
-  
-  if params[:order] != nil
-    p 'yo'
-    order = params[:order]
-  end
+  name = params[:name]
+  desc = params[:desc]
+  order = params[:order]
+
+  query = "UPDATE quizzes SET name = ?, desc = ? WHERE id = ?"
+  db.execute(query, name, desc)
 
   if params[:content] != nil
-    p 'yo'
     content = JSON.parse(params[:content])
+    query = "DELETE FROM questions WHERE quiz_id = ?; DELETE FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE question.quiz_id = ?"
+    db.execute(query, quiz_id, quiz_id)
+
+    q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
+    a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
+    content.each do |q| # q - question
+      question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
+      q['answers'].each do |a|
+        db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
+      end
+    end
   end
 
-  if params[:owners] != nil
-    p 'yo'
-    owners = params[:owners].split(',').map(&:lstrip) 
+  if params[:owners_changed] == "true"
+    owners = params[:owners].split(',').map(&:lstrip)
+    query = "DELETE quizzes_owners WHERE quiz_id = ?; INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
+    db.execute(query, quiz_id, quiz_id, session[:user_id], 1)
+    owners.each do |o| 
+      if o.is_a?(Numeric)
+        user_id = o.to_i
+      else
+        query2 = "SELECT id FROM users WHERE uid = ?"
+        user_id = db.execute(query2, o)
+      end
+
+      if user_id != session[:user_id]
+        db.execute(query, quiz_id, user_id, 0)
+      end
+    end
   end
 
-
-
-
-
-
-
-  # db = conn("db/q.db")
-  # query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
-  # quiz_id = db.execute(query, name, desc).first['id']
-
-  # q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
-  # a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
-  # content.each do |q| # q - question
-  #   question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
-  #   q['answers'].each do |a|
-  #     db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
-  #   end
-  # end
-
-  # query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-  # db.execute(query, quiz_id, session[:user_id], 1)
-  # owners.each do |o| 
-  #   if o.is_a?(Numeric)
-  #     user_id = o.to_i
-  #   else
-  #     query2 = "SELECT id FROM users WHERE uid = ?"
-  #     user_id = db.execute(query2, o)
-  #   end
-
-  #   if user_id != session[:user_id]
-  #     db.execute(query, quiz_id, user_id, 0)
-  #   end
-  # end
-
-  # db.close
-  
-  # redirect('/')
+  db.close
+  redirect('/')
 end
-
-# get('/quizzes') do
-
-# end
-
-# get('/user/:id') do
-
-# end
-
-# get('/user/:id/quizzes') do
-
-# end
-
-
-
-# post('/quiz/create') do
-# #   db = SQLite3::Database.new("db/chinook-crud.db")
-
-# #   title = params[:title]
-# #   artist_id = params[:artist_id]
-
-# #   db.execute("INSERT INTO albums (Title, ArtistId) VALUES (?,?)",title,artist_id)
-
-# #   redirect('/albums')
-# end
-
-# get('/quiz/:id') do
-# #   id = params[:id].to_i
-# #   db = SQLite3::Database.new("db/chinook-crud.db")
-# #   db.results_as_hash = true
-
-# #   result = db.execute("SELECT * FROM albums WHERE AlbumId = ?",id).first
-# #   result2 = db.execute("SELECT Name AS ArtistName FROM artists WHERE ArtistId IN (SELECT ArtistId FROM albums WHERE AlbumId = ?)",id).first
-  
-# #   slim(:"albums/show",locals:{result:result,result2:result2})
-# end
-
-# post('/quiz/:id/delete') do
-# #   id = params[:id].to_i
-# #   db = SQLite3::Database.new("db/chinook-crud.db")
-
-# #   db.execute("DELETE FROM albums WHERE AlbumId = ?",id)
-  
-# #   redirect('/albums')
-# end
-
-# get('/quiz/:id/edit') do
-# #   id = params[:id].to_i
-# #   db = SQLite3::Database.new("db/chinook-crud.db")
-# #   db.results_as_hash = true
-
-# #   result = db.execute("SELECT * FROM albums WHERE AlbumId = ?",id).first
-
-# #   slim(:"albums/edit",locals:{result:result})
-# end
-
-# post('/quiz/:id/update') do
-# #   id = params[:id].to_i
-# #   title = params[:title]
-# #   db = SQLite3::Database.new("db/chinook-crud.db")
-
-# #   db.execute("UPDATE albums SET Title = ? WHERE AlbumId = ?",title,id)
-  
-# #   redirect('/albums')
-# end

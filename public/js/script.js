@@ -32,16 +32,22 @@ function prepareCreate() {
         content.push(q);
     });
     var json = JSON.stringify(content);
-    json_current = $('.content_container').attr('current');
-    $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
-
     if($('section#edit').length == 1) {
-        $('input').each(function() {
-            if($(this).val() == $(this).attr('current')) {
-                $(this).remove();
-            }
-        })
+        current_json = $('.content_container');
+        if(json != current_json) {
+            $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
+        } else {
+            $('input[name="content"]').remove(); // om någon skickar in post och sedan återvändre med bak-pil, kommer elementet finnas kvar även om de ångrar ändringarna i content, därför ser vi till att den inte finns såhär
+        }
+
+        if($('input[name="owners"]').val() != $('input[name="owners"]').attr('current')) {
+            $('form[action="/quiz/create"]').append('<input type="hidden" name="owners_changed" value="true">');
+        }
+    } else {
+        $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
     }
+    
+    
 }
 
 $(document).ready(function() {

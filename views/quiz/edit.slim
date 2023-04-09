@@ -2,12 +2,12 @@ section#edit
     .container
         h2.edit Förändra quiz 
         form.edit action="/quiz/#{quiz['id']}/update" method="post" onsubmit="prepareCreate()"
-            input type="text" name="name" placeholder="Quiz-titel" value="#{quiz['name']}" current="#{quiz['name']}"
-            input type="text" name="desc" placeholder="Beskrivning" value="#{quiz['desc']}" current="#{quiz['desc']}"
+            input type="text" name="name" placeholder="Quiz-titel" value="#{quiz['name']}"
+            input type="text" name="desc" placeholder="Beskrivning" value="#{quiz['desc']}"
             input type="text" name="owners" placeholder="Lägg till behöriga" value="#{quiz['owner_str']}" current="#{quiz['owner_str']}"
             .buttons 
-                button.button.create type="submit" value="update" Ändra
-                button.button.delete type="submit" value="delete" Släng
+                button.button.create type="submit" Ändra
+                button.button.delete type="submit" name="delete" value="1" Släng
                 a.button.cancel href="/" Avbryt
     .container 
         h2.content Frågor och svar 
