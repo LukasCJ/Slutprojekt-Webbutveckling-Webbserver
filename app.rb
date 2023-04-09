@@ -107,17 +107,49 @@ get('/quiz/new') do
 end
 
 post('/quiz/create') do
-  title = params[:title]
-  desc = params[:description]
+  name = params[:name]
+  desc = params[:desc]
   order = params[:order]
   content = JSON.parse(params[:content])
+  owners = params[:owners].split(',').map(&:lstrip) # delar in strängen i en array utefter komma-tecken mellan användarnamnen, tar sedan bort whitespace i början och slutet av varje element
   
+  # validering
+  # if q['text'].class != String || q['text'].length < 1 # validering
+  #   redirect('/quiz/new?error="faulty-question"')
+  # end
+
+
   db = conn("db/q.db")
-  query = ""
-  db.execute(query, )
+  query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
+  quiz_id = db.execute(query, name, desc).first['id']
+
+  q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
+  a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
+  content.each do |q| # q - question
+    question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
+    q['answers'].each do |a|
+      db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
+    end
+  end
+
+  query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
+  db.execute(query, quiz_id, session[:user_id], 1)
+  owners.each do |o| 
+    if o.is_a?(Numeric)
+      user_id = o.to_i
+    else
+      query2 = "SELECT id FROM users WHERE uid = ?"
+      user_id = db.execute(query2, o)
+    end
+
+    if user_id != session[:user_id]
+      db.execute(query, quiz_id, user_id, 0)
+    end
+  end
+
   db.close
 
-  # redirect('/')
+  redirect('/')
 end
 
 get('/quiz/:id') do

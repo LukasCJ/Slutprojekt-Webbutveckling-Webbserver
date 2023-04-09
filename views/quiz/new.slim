@@ -2,8 +2,8 @@ section#create
     .container
         h2.create Skapa ett quiz 
         form action="/quiz/create" method="post" onsubmit="prepareCreate()"
-            input type="text" name="title" placeholder="Quiz-titel"
-            input type="text" name="description" placeholder="Beskrivning"
+            input type="text" name="name" placeholder="Quiz-titel"
+            input type="text" name="desc" placeholder="Beskrivning"
             div.checkbox_container
                 label for="order" Ordning
                 select name="order"
@@ -27,6 +27,6 @@ section#create
             .answer qid="1" aid="1"
                 p.num #1.1
                 input type="text" name="answer" placeholder="Svar"
-                select name="status"
-                    option value="incorrect" Fel
-                    option value="correct" Rätt
+                select name="correct"
+                    option value="0" Fel
+                    option value="1" Rätt

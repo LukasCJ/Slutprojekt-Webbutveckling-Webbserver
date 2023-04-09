@@ -1,10 +1,10 @@
 
 function makeQuestion(qid) {
-    return `<div class="question" qid="${qid}"><p class="num">#${qid}</p><input placeholder="Fråga" type="text" />`;
+    return `<div class="question" qid="${qid}"><p class="num">#${qid}</p><input placeholder="Fråga" type="text" name="question" />`;
 }
 
 function makeAnswer(qid, aid) {
-    return `<div class="answer" qid="${qid}" aid="${aid}"><p class="num">#${qid}.${aid}</p><input placeholder="Svar" type="text" /><select name="status"><option value="incorrect">Fel</option><option value="correct">Rätt</option></select></div>`;
+    return `<div class="answer" qid="${qid}" aid="${aid}"><p class="num">#${qid}.${aid}</p><input placeholder="Svar" type="text" name="answer" /><select name="correct"><option value="0">Fel</option><option value="1">Rätt</option></select></div>`;
 }
 
 function prepareCreate() {
@@ -24,9 +24,9 @@ function prepareCreate() {
 
         $(`.answer[qid="${qid}"]`).each(function() {
             a = {}; // object
-            a['id'] = parseInt($(this).attr('aid'));
+            a['id'] = parseInt( $(this).attr('aid') );
             a['text'] = $(this).find('input[name="answer"]').first().val();
-            a['status'] = $(this).find('select[name="status"]').first().val();
+            a['correct'] = parseInt( $(this).find('select[name="correct"]').first().val() );
             q['answers'].push(a);
         })
         content.push(q);
@@ -39,7 +39,7 @@ function prepareCreate() {
 $(document).ready(function() {
 
 $('section#yours .button.desc').click(function() {
-    var container = $(this).parents('.quiz_list').find('.desc_container');
+    var container = $(this).parents('.quiz_list > li').find('.desc_container');
     if(container.hasClass('open')) {
         $(this).text('View description');
         container.removeClass('open');
