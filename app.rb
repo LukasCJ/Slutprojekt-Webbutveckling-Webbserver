@@ -216,8 +216,9 @@ get('/quiz/:id/edit') do
   result = access_quiz(params[:id], session[:user_id])
   quiz = result['quiz']
   access = result['access']
+  quiz['content_json'] = quiz['content'].to_json
 
-  owner_str = ""
+  quiz['owner_str'] = ""
   last = quiz['owners'].length-1
   quiz['owners'].each_with_index do |owner, i|
 
@@ -229,13 +230,74 @@ get('/quiz/:id/edit') do
       owner['uid'] += ', '
     end
     
-    owner_str += owner['uid']
+    quiz['owner_str'] += owner['uid']
   end
-  slim(:"quiz/edit", locals:{access:access, quiz:quiz, owner_str:owner_str})
+  slim(:"quiz/edit", locals:{access:access, quiz:quiz})
 end
 
 post('/quiz/:id/update') do # används för både update (inklusive add collaborator) & delete
-  redirect('/')
+  if params[:name] != nil
+    p 'yo'
+    name = params[:name]
+  end
+
+  if params[:desc] != nil
+    p 'yo'
+    desc = params[:desc]
+  end
+  
+  if params[:order] != nil
+    p 'yo'
+    order = params[:order]
+  end
+
+  if params[:content] != nil
+    p 'yo'
+    content = JSON.parse(params[:content])
+  end
+
+  if params[:owners] != nil
+    p 'yo'
+    owners = params[:owners].split(',').map(&:lstrip) 
+  end
+
+
+
+
+
+
+
+  # db = conn("db/q.db")
+  # query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
+  # quiz_id = db.execute(query, name, desc).first['id']
+
+  # q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
+  # a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
+  # content.each do |q| # q - question
+  #   question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
+  #   q['answers'].each do |a|
+  #     db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
+  #   end
+  # end
+
+  # query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
+  # db.execute(query, quiz_id, session[:user_id], 1)
+  # owners.each do |o| 
+  #   if o.is_a?(Numeric)
+  #     user_id = o.to_i
+  #   else
+  #     query2 = "SELECT id FROM users WHERE uid = ?"
+  #     user_id = db.execute(query2, o)
+  #   end
+
+  #   if user_id != session[:user_id]
+  #     db.execute(query, quiz_id, user_id, 0)
+  #   end
+  # end
+
+  # db.close
+  
+  # redirect('/')
 end
 
 # get('/quizzes') do

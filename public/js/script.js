@@ -32,8 +32,16 @@ function prepareCreate() {
         content.push(q);
     });
     var json = JSON.stringify(content);
-    console.log(json);
-    $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}'>`);
+    json_current = $('.content_container').attr('current');
+    $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
+
+    if($('section#edit').length == 1) {
+        $('input').each(function() {
+            if($(this).val() == $(this).attr('current')) {
+                $(this).remove();
+            }
+        })
+    }
 }
 
 $(document).ready(function() {
