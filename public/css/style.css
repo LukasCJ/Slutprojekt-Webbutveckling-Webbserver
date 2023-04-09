@@ -307,7 +307,7 @@ section#forms form button {
     width: calc(var(--len1) * 6);
 }
 
-form[action="/quiz/create"] {
+form.create, form.edit {
     min-width: max-content;
     width: calc(var(--len1) * 8);
     background-color: var(--gcolor31);
@@ -320,11 +320,11 @@ form[action="/quiz/create"] {
     border-radius: var(--b);
 }
 
-form[action="/quiz/create"] input[type="text"] {
+form.create input[type="text"], form.edit input[type="text"] {
     width: 100%;
 }
 
-section#create {
+section#create, section#edit {
     padding-top: var(--len1);
     display: flex;
     justify-content: center;
@@ -332,21 +332,14 @@ section#create {
     column-gap: var(--len1);
 }
 
-section#create .container {
+section#create .container, section#edit .container {
     width: max-content;
     display: flex;
     flex-direction: column;
     row-gap: calc(var(--len1)/2);
 }
 
-.checkbox_container {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-h2.create {
+h2.create, h2.edit {
     color: var(--gcolor31);
 }
 
@@ -368,7 +361,7 @@ h2.content {
     border-radius: var(--b);
 }
 
-section#create .buttons {
+section#create .buttons, section#edit .buttons {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -426,6 +419,6 @@ p.num {
     color: var(--gcolor13);
 }
 
-section#create label {
-    color: var(--gcolor11);
+section#edit form .button.delete {
+    margin: 0 calc(var(--len1) / 2) 0 calc(var(--len1) / 2);
 }

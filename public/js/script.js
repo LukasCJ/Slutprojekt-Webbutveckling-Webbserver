@@ -60,7 +60,7 @@ $('section#forms .button.switch_forms').click(function() {
     }
 });
 
-$('section#create .content_container').on('click', '.question, .answer, .question *, .answer *', function() { // väljer fråga eller svar
+$('section#create .content_container, section#edit .content_container').on('click', '.question, .answer, .question *, .answer *', function() { // väljer fråga eller svar
     if(!$(this).hasClass('question') && !$(this).hasClass('answer')) {
         var item = $(this).parents('.question, .answer');
         if(!item.hasClass('focus')) {
@@ -74,7 +74,7 @@ $('section#create .content_container').on('click', '.question, .answer, .questio
     prepareCreate();
 });
 
-$('section#create .button.add_question').click(function() { // skapar ny fråga
+$('section#create .button.add_question, section#edit .button.add_question').click(function() { // skapar ny fråga
     var item, item_qid, qid, aid;
     if($('.question').length > 100) { return } // validering, max 100 frågor per quiz
 
@@ -114,7 +114,7 @@ $('section#create .button.add_question').click(function() { // skapar ny fråga
     }
 });
 
-$('section#create .button.add_answer').click(function() { // skapar nytt svar
+$('section#create .button.add_answer, section#edit .button.add_answer').click(function() { // skapar nytt svar
     var item, qid, aid;
     if($('.focus').length == 1) { // om någon fråga eller något svar är valt
 
@@ -162,7 +162,7 @@ $('section#create .button.add_answer').click(function() { // skapar nytt svar
     }
 });
 
-$('section#create .button.delete').click(function() { // raderar valt element (fråga eller svar)
+$('section#create .button.delete, section#edit .button.delete').click(function() { // raderar valt element (fråga eller svar)
     var item_qid, qid, item_aid, aid;
     if($('.focus').length == 1) {
         const item = $('.focus');

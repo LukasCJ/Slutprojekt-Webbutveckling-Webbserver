@@ -19,11 +19,11 @@ get('/') do
   else
 
     db = conn("db/q.db")
-    query = "SELECT * 
+    query = "SELECT quizzes.* 
     FROM quizzes 
     INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id
     WHERE quizzes_owners.user_id = ?
-    ORDER BY id DESC
+    ORDER BY quizzes.id DESC
     LIMIT 10"
     quizzes = db.execute(query, session[:user_id])
     puts "Result: #{quizzes}"
@@ -118,7 +118,6 @@ post('/quiz/create') do
   #   redirect('/quiz/new?error="faulty-question"')
   # end
 
-
   db = conn("db/q.db")
   query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
   quiz_id = db.execute(query, name, desc).first['id']
@@ -152,25 +151,25 @@ post('/quiz/create') do
   redirect('/')
 end
 
-get('/quiz/:id') do
-  id = params[:id]
-
+def access_quiz(quiz_id, user_id)
+  
   db = conn("db/q.db")
   query = "SELECT * 
   FROM quizzes 
   WHERE id = ?
   LIMIT 1"
-  quiz = db.execute(query, id)
+  quiz = db.execute(query, quiz_id).first
   puts "Quiz: #{quiz}"
-  query = "SELECT * 
-  FROM quizzes_owners 
-  WHERE quiz_id = ?"
-  owners = db.execute(query, id)
-  puts "Owners: #{owners}"
+  query = "SELECT users.id, users.uid, quizzes_owners.creator
+  FROM users
+  INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id 
+  WHERE quizzes_owners.quiz_id = ?"
+  quiz['owners'] = db.execute(query, quiz_id)
+  puts "Owners: #{quiz['owners']}"
 
   access = false
-  owners.each do |owner|
-    if owner['user_id'] == session[:user_id]
+  quiz['owners'].each do |owner|
+    if owner['user_id'] == user_id
       access = true
     end
   end
@@ -178,40 +177,64 @@ get('/quiz/:id') do
   query = "SELECT * 
   FROM questions
   WHERE quiz_id = ?"
-  questions = db.execute(query, id)
-  puts "Questions: #{questions}"
-  query = "SELECT *
+  questions = db.execute(query, quiz_id)
+  query = "SELECT answers.*
   FROM answers
   INNER JOIN questions ON questions.id = answers.question_id 
   WHERE questions.quiz_id = ?"
-  answers = db.execute(query, id)
-  puts "Answers: #{answers}"
+  answers = db.execute(query, quiz_id)
 
   db.close
 
-  tmp1 = []
+  quiz['content'] = []
   questions.each do |question|
-    tmp2 = {'question' => question}
-    tmp3 = []
+    q = {}
+    q['answers'] = []
+    q['id'], q['text'] = question['local_id'], question['text']
     answers.each do |answer|
-      if answer['quiz_id'] == question['id']
-        tmp3 << answer
-      end
+      a = {}
+      a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
+      q['answers'] << a
     end
-    tmp2['answers'] = tmp3
-    tmp1 << tmp2
+    quiz['content'] << q
   end
 
-  questions = tmp1
+  return {'access' => access, 'quiz' => quiz}
+end
 
-  slim(:"quiz/index", locals:{id:id, access:access, quiz:quiz, questions:questions})
+get('/quiz/:id') do
+  
+  result = access_quiz(params[:id], session[:user_id])
+  quiz = result['quiz']
+  access = result['access']
+
+  slim(:"quiz/index", locals:{access:access, quiz:quiz})
 end
 
 get('/quiz/:id/edit') do
-  slim(:"quiz/index/edit")
+
+  result = access_quiz(params[:id], session[:user_id])
+  quiz = result['quiz']
+  access = result['access']
+
+  owner_str = ""
+  last = quiz['owners'].length-1
+  quiz['owners'].each_with_index do |owner, i|
+
+    if owner['creator'] == 1
+      owner['uid'] += '*'
+    end
+
+    if i != last
+      owner['uid'] += ', '
+    end
+    
+    owner_str += owner['uid']
+  end
+  slim(:"quiz/edit", locals:{access:access, quiz:quiz, owner_str:owner_str})
 end
 
-post('/quiz/:id/update') do # används för både update & delete, inklusive add collaborator
+post('/quiz/:id/update') do # används för både update (inklusive add collaborator) & delete
   redirect('/')
 end
 

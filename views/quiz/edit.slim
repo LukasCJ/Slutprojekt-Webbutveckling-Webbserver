@@ -1,0 +1,34 @@
+section#edit
+    .container
+        h2.edit Förändra quiz 
+        form.edit action="/quiz/#{quiz['id']}/update" method="post" onsubmit="prepareCreate()"
+            input type="text" name="name" placeholder="Quiz-titel" value="#{quiz['name']}"
+            input type="text" name="desc" placeholder="Beskrivning" value="#{quiz['desc']}"
+            input type="text" name="owners" placeholder="Lägg till behöriga" value="#{owner_str}"
+            .buttons 
+                button.button.create type="submit" value="update" Ändra
+                button.button.delete type="submit" value="delete" Släng
+                a.button.cancel href="/" Avbryt
+    .container 
+        h2.content Frågor och svar 
+        .content_container 
+            .buttons
+                button.button.add_question type="button" + Fråga
+                button.button.add_answer type="button" + Svar
+                button.button.delete type="button" Släng
+            - quiz['content'].each do |q|
+                .question qid="#{q['id']}"
+                    p.num = "\##{q['id']}"
+                    input type="text" name="question" placeholder="Fråga" value="#{q['text']}"
+                - q['answers'].each do |a|
+                    .answer qid="#{q['id']}" aid="#{a['id']}"
+                        p.num = "\##{q['id']}.#{a['id']}"
+                        input type="text" name="answer" placeholder="Svar" value="#{a['text']}"
+                        - if a['correct'] == 0
+                            select name="correct"
+                                option value="0" selected="selected" Fel 
+                                option value="1" Rätt
+                        - elsif a['correct'] == 1
+                            select name="correct"
+                                option value="0" Fel 
+                                option value="1" selected="selected" Rätt
