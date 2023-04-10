@@ -16,7 +16,7 @@ body
                 form method="post" action="/logout"
                     button.button type="submit" Logga ut
                 - if session[:admin] == 1
-                    a.button href="/all" Skapa
+                    a.button href="/all" Alla
     ==yield
     - if session[:user_id] != nil
         footer

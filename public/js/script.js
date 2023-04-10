@@ -33,8 +33,8 @@ function prepareCreate() {
     });
     var json = JSON.stringify(content);
     if($('section#edit').length == 1) {
-        current_json = $('.content_container');
-        if(json != current_json) {
+        json_current = $('.content_container');
+        if(json != json_current) {
             $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
         } else {
             $('input[name="content"]').remove(); // om någon skickar in post och sedan återvändre med bak-pil, kommer elementet finnas kvar även om de ångrar ändringarna i content, därför ser vi till att den inte finns såhär
@@ -44,10 +44,8 @@ function prepareCreate() {
             $('form[action="/quiz/create"]').append('<input type="hidden" name="owners_changed" value="true">');
         }
     } else {
-        $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
+        $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}'>`);
     }
-    
-    
 }
 
 $(document).ready(function() {
@@ -176,7 +174,7 @@ $('section#create .button.add_answer, section#edit .button.add_answer').click(fu
     }
 });
 
-$('section#create .button.delete, section#edit .button.delete').click(function() { // raderar valt element (fråga eller svar)
+$('.content_container .button.delete').click(function() { // raderar valt element (fråga eller svar)
     var item_qid, qid, item_aid, aid;
     if($('.focus').length == 1) {
         const item = $('.focus');
@@ -202,9 +200,9 @@ $('section#create .button.delete, section#edit .button.delete').click(function()
     
         } else if(item.hasClass('answer')) {
     
-            item_qid = parseInt(item.attr('qid'));
+            qid = parseInt(item.attr('qid'));
             item_aid = parseInt(item.attr('aid'));
-            $(`.answer[aid="${item_aid}"] ~ .answer[qid="${item_qid}"]`).each(function() { // uppdaterar värden för svar (med samma qid som det svaret som ska raderas) som ligger efter det svaret som ska raderas
+            $(`.answer[aid="${item_aid}"] ~ .answer[qid="${qid}"]`).each(function() { // uppdaterar värden för svar (med samma qid som det svaret som ska raderas) som ligger efter det svaret som ska raderas
                 aid = parseInt($(this).attr('aid'))-1; // skapar nytt answer id
                 $(this).attr('aid', aid); // stoppar in nytt aid i data
                 $(this).find('p.num').text(`#${qid}.${aid}`); // stoppar in nytt id i texten

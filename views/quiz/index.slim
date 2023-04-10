@@ -1,0 +1,12 @@
+section#quiz
+    - if access 
+        div.ready_container
+            h2.ready Ready?
+            button.button type="button" Let's go
+        - quiz['content'].each do |question|
+            section#question -data-qnum="1"
+    - else 
+        div.denied_container
+            h2.denied You don't have access to this quiz.
+            a.button href="/" Return
+            button.button type="button" Request access

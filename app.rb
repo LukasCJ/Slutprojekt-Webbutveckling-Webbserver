@@ -1,3 +1,4 @@
+require_relative 'model.rb'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'slim'
@@ -7,202 +8,86 @@ require 'json'
 
 enable :sessions
 
-def conn(path)
-  db = SQLite3::Database.new(path)
-  db.results_as_hash = true
-  return db
-end
+include Model
 
+# Display landing page
+#
+# @session [Integer] user_id, The id of the user's account on the databse, is asigned as session at login, If not defined the user is sent to page for login/signup
 get('/') do
-  if(session[:user_id] == nil)
-    redirect('/forms')
-  else
-
-    db = conn("db/q.db")
-    query = "SELECT quizzes.* 
-    FROM quizzes 
-    INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id
-    WHERE quizzes_owners.user_id = ?
-    ORDER BY quizzes.id DESC
-    LIMIT 10"
-    quizzes = db.execute(query, session[:user_id])
-    puts "Result: #{quizzes}"
-    db.close
-
-    slim(:index, locals:{quizzes:quizzes})
-  end
+  check_login()
+  quizzes = fetch_owned_quizzes()
+  slim(:index, locals:{quizzes:quizzes})
 end
 
+# Display login/signup page
+#
 get('/forms') do
   slim(:forms)
 end
 
+# Inserts a new user account into the database, logs the user into that account and redirects the user to landing page
+#
+# @param [String] name, The name of the owner of the new user account
+# @param [String] uid, Means unique identifier, A unique username for the new account
+# @param [String] pwd, The password of the new account
+# @param [String] pwd_confirm, Repeated password for validation
+#
+# @see Model#create_account
 post('/signup') do
-  name = params[:name]
-  uid = params[:uid]
-  pwd = params[:pwd]
-  pwd_confirm = params[:pwd_confirm]
-
-  if pwd == pwd_confirm
-
-    pwdigest = BCrypt::Password.create(pwd)
-
-    db = conn("db/q.db")
-    query = "INSERT INTO users 
-    (name, uid, pwdigest) VALUES (?, ?, ?)"
-    db.execute(query, name, uid, pwdigest)
-    db.close
-
-    redirect('/')
-  else
-    puts "Lösenorden matchar inte."
-    redirect('/forms?error=pwdmatch')
-  end
+  create_account(params)
+  redirect('/')
 end
 
+# Logs the user into account matching user-given information
+#
+# @param [String] uid, The given username
+# @param [String] pwd, The given password
+#
+# @see Model#login
 post('/login') do
-  if params[:uid] == nil || params[:pwd] == nil
-    puts "Fel användarnamn."
-    redirect('/forms?error=wrongusername')
-  end
-
-  uid = params[:uid]
-  pwd = params[:pwd]
-
-  db = conn("db/q.db")
-  query = "SELECT * 
-  FROM users 
-  WHERE uid = ?
-  LIMIT 1"
-  result = db.execute(query, uid).first
-  db.close
-
-  if result
-
-    pwdigest = result['pwdigest']
-
-    if BCrypt::Password.new(pwdigest) == pwd
-      session[:user_id] = result['id']
-      session[:user_uid] = result['uid']
-      session[:admin] = result['admin']
-      redirect('/')
-    else
-      puts "Fel lösenord."
-      redirect('/forms?error=wrongpwd')
-    end
-  else
-    puts "Fel användarnamn."
-    redirect('/forms?error=wrongusername')
-  end
+  login(params)
+  redirect('/')
 end
 
+# Logs the user out of the account they're logged into
+# 
 post('/logout') do
   session[:user_id] = nil
   session[:user_uid] = nil
   redirect('/')
 end
 
+# Display quiz-creator page
+#
 get('/quiz/new') do
+  check_login()
   slim(:"quiz/new")
 end
 
+# Inserts a new quiz into the database based on user-given information (modified through script.js)
+#
+# @param [String] name, The name of the quiz
+# @param [String] desc, A description of the quiz
+# @param [String] content, A stringified JSON array containing JSON hashes containing all information about every question and every answer
+# @param [String] owners, The username or ids of the users owning the quiz, separated by commas
+# @session [Integer] user_id, The id of the creator
+#
+# @see Model#create_quiz
 post('/quiz/create') do
-  name = params[:name]
-  desc = params[:desc]
-  order = params[:order]
-  content = JSON.parse(params[:content])
-  owners = params[:owners].split(',').map(&:lstrip) # delar in strängen i en array utefter komma-tecken mellan användarnamnen, tar sedan bort whitespace i början och slutet av varje element
-  
-  # validering
-  # if q['text'].class != String || q['text'].length < 1 # validering
-  #   redirect('/quiz/new?error="faulty-question"')
-  # end
-
-  db = conn("db/q.db")
-  query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
-  quiz_id = db.execute(query, name, desc).first['id']
-
-  q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
-  a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
-  content.each do |q| # q - question
-    question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
-    q['answers'].each do |a|
-      db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
-    end
-  end
-
-  query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-  db.execute(query, quiz_id, session[:user_id], 1)
-  owners.each do |o| 
-    if o.is_a?(Numeric)
-      user_id = o.to_i
-    else
-      query2 = "SELECT id FROM users WHERE uid = ?"
-      user_id = db.execute(query2, o)
-    end
-
-    if user_id != session[:user_id]
-      db.execute(query, quiz_id, user_id, 0)
-    end
-  end
-
-  db.close
-
+  create_quiz(params)
   redirect('/')
 end
 
-def access_quiz(quiz_id, user_id)
-  
-  db = conn("db/q.db")
-  query = "SELECT * 
-  FROM quizzes 
-  WHERE id = ?
-  LIMIT 1"
-  quiz = db.execute(query, quiz_id).first
-  puts "Quiz: #{quiz}"
-  query = "SELECT users.id, users.uid, quizzes_owners.creator
-  FROM users
-  INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id 
-  WHERE quizzes_owners.quiz_id = ?"
-  quiz['owners'] = db.execute(query, quiz_id)
-  puts "Owners: #{quiz['owners']}"
-
-  access = false
-  quiz['owners'].each do |owner|
-    if owner['user_id'] == user_id
-      access = true
-    end
-  end
-
-  query = "SELECT * 
-  FROM questions
-  WHERE quiz_id = ?"
-  questions = db.execute(query, quiz_id)
-  query = "SELECT answers.*
-  FROM answers
-  INNER JOIN questions ON questions.id = answers.question_id 
-  WHERE questions.quiz_id = ?"
-  answers = db.execute(query, quiz_id)
-
-  db.close
-
-  quiz['content'] = []
-  questions.each do |question|
-    q = {}
-    q['answers'] = []
-    q['id'], q['text'] = question['local_id'], question['text']
-    answers.each do |answer|
-      a = {}
-      a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
-      q['answers'] << a
-    end
-    quiz['content'] << q
-  end
-
-  return {'access' => access, 'quiz' => quiz}
-end
-
+# Display quiz-player page
+# Corrent state: only really shows whether you own the quiz or not
+# Meant to allow you to play the quiz
+#
+# @param [Integer] id, The id of the quiz
+# @session [Integer] user_id, The id of the visitor
+#
+# @see Model#access_quiz
 get('/quiz/:id') do
+  check_login()
   
   result = access_quiz(params[:id], session[:user_id])
   quiz = result['quiz']
@@ -211,80 +96,37 @@ get('/quiz/:id') do
   slim(:"quiz/index", locals:{access:access, quiz:quiz})
 end
 
+# Display quiz-editor page
+#
+# @param [Integer] id, The id of the quiz
+# @session [Integer] user_id, The id of the visitor
+#
+# @see Model#access_quiz
+# @see Model#prepare_edit
 get('/quiz/:id/edit') do
+  check_login()
 
   result = access_quiz(params[:id], session[:user_id])
-  quiz = result['quiz']
   access = result['access']
-  quiz['content_json'] = quiz['content'].to_json
+  quiz = prepare_edit(result['quiz'])
 
-  quiz['owner_str'] = ""
-  last = quiz['owners'].length-1
-  quiz['owners'].each_with_index do |owner, i|
-
-    if owner['creator'] == 1
-      owner['uid'] += '*'
-    end
-
-    if i != last
-      owner['uid'] += ', '
-    end
-    
-    quiz['owner_str'] += owner['uid']
-  end
   slim(:"quiz/edit", locals:{access:access, quiz:quiz})
 end
 
-post('/quiz/:id/update') do # används för både update (inklusive add collaborator) & delete
-  quiz_id = params[:id]
-
-  db = conn("db/q.db")
-  if params[:delete] == 1
-    query = "DELETE FROM quizzes WHERE id = ?; DELETE FROM questions WHERE quiz_id = ?; DELETE FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE question.quiz_id = ?"
-    db.execute(query, quiz_id, quiz_id, quiz_id)
-    redirect('/')
-  end
-
-  name = params[:name]
-  desc = params[:desc]
-  order = params[:order]
-
-  query = "UPDATE quizzes SET name = ?, desc = ? WHERE id = ?"
-  db.execute(query, name, desc)
-
-  if params[:content] != nil
-    content = JSON.parse(params[:content])
-    query = "DELETE FROM questions WHERE quiz_id = ?; DELETE FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE question.quiz_id = ?"
-    db.execute(query, quiz_id, quiz_id)
-
-    q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
-    a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
-    content.each do |q| # q - question
-      question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
-      q['answers'].each do |a|
-        db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
-      end
-    end
-  end
-
-  if params[:owners_changed] == "true"
-    owners = params[:owners].split(',').map(&:lstrip)
-    query = "DELETE quizzes_owners WHERE quiz_id = ?; INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-    db.execute(query, quiz_id, quiz_id, session[:user_id], 1)
-    owners.each do |o| 
-      if o.is_a?(Numeric)
-        user_id = o.to_i
-      else
-        query2 = "SELECT id FROM users WHERE uid = ?"
-        user_id = db.execute(query2, o)
-      end
-
-      if user_id != session[:user_id]
-        db.execute(query, quiz_id, user_id, 0)
-      end
-    end
-  end
-
-  db.close
+# Updates quiz information
+# Current state: doesn't work
+#
+# @param [Integer] id, The id of the quiz
+# @param [Integer] delete, Defined as 1 if the quiz should be deleted
+# @param [String] name, The name of the quiz
+# @param [String] desc, A description of the quiz
+# @param [String] content, A stringified JSON array containing JSON hashes containing all information about every question and every answer
+# @param [String] owner_changed, Defined as true if the owner field has changed, otherwise undefined
+# @param [String] owners, The username or ids of the users owning the quiz, separated by commas
+# @session [Integer] user_id, The id of the visitor
+# 
+# @see Model#update_quiz
+post('/quiz/:id/update') do # används för både update (inklusive add owner) & delete
+  update_quiz(params)
   redirect('/')
 end
