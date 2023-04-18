@@ -1,7 +1,7 @@
 section#create
     .container
         h2.create Skapa ett quiz 
-        form.create action="/quiz/create" method="post" onsubmit="prepareCreate()"
+        form.create action="/quiz/create" method="post" onsubmit="return prepareQuizSubmit('create')"
             input type="text" name="name" placeholder="Quiz-titel"
             input type="text" name="desc" placeholder="Beskrivning"
             input type="text" name="owners" placeholder="Lägg till behöriga"

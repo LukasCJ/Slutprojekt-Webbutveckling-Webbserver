@@ -98,7 +98,6 @@ module Model
     #
     # @return [Array] containing the data of all owned quizzes
     def fetch_owned_quizzes()
-        p "ngfbdfv #{session[:user_id]}"
         db = conn("db/q.db")
         query = "SELECT quizzes.* FROM quizzes INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id WHERE quizzes_owners.user_id = ? ORDER BY quizzes.id DESC"
         quizzes = db.execute(query, session[:user_id])
@@ -161,8 +160,6 @@ module Model
     # @param [Hash] session
     # @option session [Integer] user_id, The id of the creator
     def create_quiz(params)
-        name = params[:name]
-        desc = params[:desc]
         content = JSON.parse(params[:content])
         owners = params[:owners].split(',').map(&:lstrip) # delar in strängen i en array utefter komma-tecken mellan användarnamnen, tar sedan bort whitespace i början och slutet av varje element
         
@@ -173,7 +170,7 @@ module Model
 
         db = conn("db/q.db")
         query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
-        quiz_id = db.execute(query, name, desc).first['id']
+        quiz_id = db.execute(query, params[:name], params[:desc]).first['id']
 
         q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
         a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
@@ -244,58 +241,73 @@ module Model
     # @option params [String] owners, The username or ids of the users owning the quiz, separated by commas
     # @param [Hash] session
     # @option session [Integer] user_id, The id of the editor
-    def update_quiz(params)
-        quiz_id = params[:id].to_i
+    def update_quiz(db, quiz_id, params)       
 
-        db = conn("db/q.db")
-        p "DELETE: #{params[:delete]}"
-        if params[:delete].to_i == 1
-            # går det att utföra flera queries samtidigt såhär i sqlite3 ? det funkade i mysql iaf. MEN JAG KAN INTE TESTA FÖR PROGRAMMET VÄGRAR TYP ENS GÅ IN I FUNKTIONEN AV NGN ANLEDNING AAAAAA
-            query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?); DELETE FROM questions WHERE quiz_id = ?; DELETE FROM quizzes WHERE id = ?"
-            db.execute(query, quiz_id, quiz_id, quiz_id)
-            redirect('/')
-        end
-        
-        name = params[:name]
-        desc = params[:desc]
-    
+        p "name: #{params[:name]}"
         query = "UPDATE quizzes SET name = ?, desc = ? WHERE id = ?"
-        db.execute(query, name, desc)
+        db.execute(query, params[:name], params[:desc], quiz_id)
     
-        if params[:content] != nil
-            content = JSON.parse(params[:content])
-            query = "DELETE FROM questions WHERE quiz_id = ?; DELETE FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE question.quiz_id = ?"
-            db.execute(query, quiz_id, quiz_id)
+        p "content: #{params[:content]}"
+        if params[:content] != nil # om frågor och svar är uppdaterade. använder delete och insert eftersom det är enklare än att kolla exakt vilka frågor som är uppdaterade eller borttagna eller om ordningen på dem är ändrade och sedan anpassa en update query utefter det
+
+            query = "DELETE FROM questions WHERE quiz_id = ?"
+            db.execute(query, quiz_id)
+            query = "DELETE FROM answers WHERE answers.question_id IN (SELECT questions.id FROM questions WHERE questions.quiz_id = ?)"
+            db.execute(query, quiz_id)
         
             q_query = "INSERT INTO questions (quiz_id, local_id, text) VALUES (?, ?, ?) RETURNING id"
             a_query = "INSERT INTO answers (question_id, local_id, text, correct) VALUES (?, ?, ?, ?)"
+            content = JSON.parse(params[:content])
             content.each do |q| # q - question
                 question_id = db.execute(q_query, quiz_id, q['id'], q['text']).first['id']
                 q['answers'].each do |a|
+                    p "question_id: #{question_id}"
                     db.execute(a_query, question_id, a['id'], a['text'], a['correct'])
                 end
             end
         end
         
         if params[:owners_changed] == "true"
-            owners = params[:owners].split(',').map(&:lstrip)
-            query = "DELETE quizzes_owners WHERE quiz_id = ?; INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-            db.execute(query, quiz_id, quiz_id, session[:user_id], 1)
-            owners.each do |o| 
-                if o.is_a?(Numeric)
-                    user_id = o.to_i
+            
+            # query = "DELETE quizzes_owners WHERE quiz_id = ?; INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
+            # db.execute(query, quiz_id, quiz_id, session[:user_id], 1)
+            query = "DELETE quizzes_owners WHERE quiz_id = ?"
+            db.execute(query, quiz_id)
+            query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
+            db.execute(query, quiz_id, session[:user_id], 1)
+            
+            owners = params[:owners].split(',').map(&:lstrip) # separerar sträng till array och tar bort whitespace i slut och början på varje element
+            owners.each do |o| # o - owner
+                if o[-1] == "*"
+                    o.chop!
+                    find_id_query = "SELECT id FROM users WHERE uid = ?"
+                    user_id = db.execute(find_id_query, o)
+                    if user_id != session[:user_id]
+                        db.execute(query, quiz_id, user_id, 1)
+                    end
                 else
-                    query2 = "SELECT id FROM users WHERE uid = ?"
-                    user_id = db.execute(query2, o)
-                end
-        
-                if user_id != session[:user_id]
-                    db.execute(query, quiz_id, user_id, 0)
+                    find_id_query = "SELECT id FROM users WHERE uid = ?"
+                    user_id = db.execute(find_id_query, o)
+                    if user_id != session[:user_id]
+                        db.execute(query, quiz_id, user_id, 0)
+                    end
                 end
             end
         end
-      
-        db.close
+    end
+
+    def delete_quiz(db, quiz_id)
+        # query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?); DELETE FROM questions WHERE quiz_id = ?; DELETE FROM quizzes WHERE id = ?"
+        # db.execute(query, quiz_id, quiz_id, quiz_id)
+        query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)"
+        db.execute(query, quiz_id)
+        query = "DELETE FROM questions WHERE quiz_id = ?"
+        db.execute(query, quiz_id)
+        query = "DELETE FROM quizzes WHERE id = ?"
+        db.execute(query, quiz_id)
+        query = "DELETE FROM quizzes_owners WHERE quiz_id = ?"
+        db.execute(query, quiz_id)
+        redirect('/')
     end
 
 end

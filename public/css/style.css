@@ -18,10 +18,15 @@ body {
     --len1: 2rem;
     --len2: calc(var(--len1) * 5);
     --b: 3px;
+    --scroll-w: 12px;
 
     font-family: var(--gfont1);
     background-color: var(--gcolor11);
     overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+    width: var(--scroll-w);
 }
 
 a {
@@ -225,7 +230,7 @@ section#forms {
 
 .form_container {
     margin-top: calc(var(--len1) * 3);
-    width: 200%;
+    width: calc(200vw - var(--scroll-w)*2);
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -239,12 +244,12 @@ section#forms {
     left: 0vw;
 }
 .form_container.signup {
-    left: -100vw;
+    left: calc(-100vw + var(--scroll-w));
 }
 
 .button_container {
     margin-top: var(--len1);
-    width: 100%;
+    width: calc(100vw - var(--scroll-w));
     display: flex;
     justify-content: center;
     align-items: center;

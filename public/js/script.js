@@ -7,18 +7,25 @@ function makeAnswer(qid, aid) {
     return `<div class="answer" qid="${qid}" aid="${aid}"><p class="num">#${qid}.${aid}</p><input placeholder="Svar" type="text" name="answer" /><select name="correct"><option value="0">Fel</option><option value="1">Rätt</option></select></div>`;
 }
 
-function prepareCreate() {
+function prepareQuizSubmit(type) {
     var content = [];
     var q, a, qid;
 
-    if($('.question').length == 0) { return; } // validering
+    if($('.question').length == 0) { // validering
+        alert("Quiz saknar frågor.");
+        return false; 
+    }
 
     $('.question').each(function() {
         q = {}; // object
         q['answers'] = []
 
         qid = parseInt($(this).attr('qid'));
-        if($(`.answer[qid="${qid}"]`).length == 0) { return; } // validering
+        if($(`.answer[qid="${qid}"]`).length == 0) { // validering
+            alert("Fråga saknar svar.");
+            return false; 
+        }
+
         q['id'] = qid;
         q['text'] = $(this).find('input[name="question"]').first().val();
 
@@ -32,19 +39,19 @@ function prepareCreate() {
         content.push(q);
     });
     var json = JSON.stringify(content);
-    if($('section#edit').length == 1) {
+
+    if(type == "create") {
+        $('form.create').append(`<input type="hidden" name="content" value='${json}'>`);
+    } else if(type == "edit") {
         json_current = $('.content_container');
         if(json != json_current) {
-            $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
+            $('form.edit').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
         } else {
             $('input[name="content"]').remove(); // om någon skickar in post och sedan återvändre med bak-pil, kommer elementet finnas kvar även om de ångrar ändringarna i content, därför ser vi till att den inte finns såhär
         }
-
         if($('input[name="owners"]').val() != $('input[name="owners"]').attr('current')) {
-            $('form[action="/quiz/create"]').append('<input type="hidden" name="owners_changed" value="true">');
+            $('form.edit').append('<input type="hidden" name="owners_changed" value="true">');
         }
-    } else {
-        $('form[action="/quiz/create"]').append(`<input type="hidden" name="content" value='${json}'>`);
     }
 }
 
@@ -83,7 +90,6 @@ $('section#create .content_container, section#edit .content_container').on('clic
         $('.question, .answer').removeClass('focus');
         $(this).addClass('focus');
     }
-    prepareCreate();
 });
 
 $('section#create .button.add_question, section#edit .button.add_question').click(function() { // skapar ny fråga

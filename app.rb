@@ -127,6 +127,14 @@ end
 # 
 # @see Model#update_quiz
 post('/quiz/:id/update') do # används för både update (inklusive add owner) & delete
-  update_quiz(params)
+  quiz_id = params[:id].to_i
+
+  db = conn("db/q.db")
+  if params[:delete] == "1"
+    delete_quiz(db, quiz_id)
+  else
+    update_quiz(db, quiz_id, params)
+  end
+  db.close
   redirect('/')
 end
