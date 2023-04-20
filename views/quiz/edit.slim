@@ -22,10 +22,12 @@ section#edit
                     input type="text" name="question" placeholder="Fråga"
             - else 
                 - quiz['content'].each do |q|
+                    - p "questions answers: #{q['answers']}"
                     .question qid="#{q['id']}"
                         p.num = "\##{q['id']}"
                         input type="text" name="question" placeholder="Fråga" value="#{q['text']}"
                     - q['answers'].each do |a|
+                        - p "answers: #{a}"
                         .answer qid="#{q['id']}" aid="#{a['id']}"
                             p.num = "\##{q['id']}.#{a['id']}"
                             input type="text" name="answer" placeholder="Svar" value="#{a['text']}"

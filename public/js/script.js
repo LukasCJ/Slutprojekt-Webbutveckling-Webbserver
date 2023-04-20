@@ -140,7 +140,7 @@ $('section#create .button.add_answer, section#edit .button.add_answer').click(fu
         if(item.hasClass('question')) { // om det är en fråga som är vald
 
             qid = parseInt(item.attr('qid')); // hämtar question id från valt element (vilket är samma qid som det nya svaret ska få)
-            if($(`.answer[qid="${qid}"]`).length > 12) { return } // validering, max 12 svar per fråga
+            if($(`.answer[qid="${qid}"]`).length > 12) { return; } // validering, max 12 svar per fråga
 
             if($(`.answer[qid="${qid}"]`).length > 0) { // om den valda frågan har svar
                 item = $(`.answer[qid="${qid}"]`).last(); 
@@ -153,7 +153,7 @@ $('section#create .button.add_answer, section#edit .button.add_answer').click(fu
         } else if(item.hasClass('answer')) { // om det är ett svar som är valt
 
             qid = parseInt(item.attr('qid'));
-            if($(`.answer[qid="${qid}"]`).length > 12) { return } // validering, max 12 svar per fråga
+            if($(`.answer[qid="${qid}"]`).length > 12) { return; } // validering, max 12 svar per fråga
 
             $(`.answer.focus ~ .answer[qid="${qid}"]`).each(function() { // uppdaterar värden för svar som kommer hamna efter det nya svaret (egentligen efter det valda svaret, men det är samma sak)
                 aid = parseInt($(this).attr('aid'))+1; // skapar nytt answer id
@@ -161,7 +161,7 @@ $('section#create .button.add_answer, section#edit .button.add_answer').click(fu
                 $(this).find('p.num').text(`#${qid}.${aid}`); // stoppar in nytt id i texten
             });
 
-            aid = parseInt(item.attr('qid'))+1;
+            aid = parseInt(item.attr('aid'))+1;
             item.after(makeAnswer(qid, aid)); // skapar svaret efter det valda svaret
         }
     } else { // om inget element är valt

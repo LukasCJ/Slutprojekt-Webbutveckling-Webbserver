@@ -234,7 +234,6 @@ section#forms {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    column-gap: var(--len1);
     position: relative;
     box-sizing: border-box;
     transition: left ease 0.3s;

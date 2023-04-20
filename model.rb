@@ -131,6 +131,7 @@ module Model
         questions = db.execute(query, quiz_id)
         query = "SELECT answers.* FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE questions.quiz_id = ?"
         answers = db.execute(query, quiz_id)
+        p "answers from sql: #{answers}"
     
         db.close
     
@@ -140,9 +141,11 @@ module Model
             q['answers'] = []
             q['id'], q['text'] = question['local_id'], question['text']
             answers.each do |answer|
-                a = {}
-                a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
-                q['answers'] << a
+                if answer['question_id'] == question['id']
+                    a = {}
+                    a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
+                    q['answers'] << a
+                end
             end
             quiz['content'] << q
         end
@@ -307,7 +310,6 @@ module Model
         db.execute(query, quiz_id)
         query = "DELETE FROM quizzes_owners WHERE quiz_id = ?"
         db.execute(query, quiz_id)
-        redirect('/')
     end
 
 end
