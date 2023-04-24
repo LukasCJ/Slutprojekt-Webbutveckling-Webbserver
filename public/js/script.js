@@ -55,6 +55,25 @@ function prepareQuizSubmit(type) {
     }
 }
 
+function presentAnswers() {
+
+}
+
+function progressBar(start, duration, delay) { // start = startpunkt i procent, duration = hur lång tid det ska ta för progressbaren att bli klar, delay = tid i millisekunder mellan uppdaterin av bar, i = på eller av (1 eller 0)
+    var step = (100-start)/((duration*1000)/delay);
+    var bar = $('#progress_bar');
+    var width = start;
+    var id = setInterval(function() {
+        if (width >= 100) {
+            clearInterval(id);
+            presentAnswers();
+          } else {
+            width += step;
+            bar.css('width',  width+"%");
+        }
+    }, delay);
+}
+
 $(document).ready(function() {
 
 $('section#yours .button.desc').click(function() {
@@ -218,6 +237,10 @@ $('.content_container .button.delete').click(function() { // raderar valt elemen
         item.remove();
     }  
 });
+
+if($('section#quiz').length == 1) {
+    progressBar(0, 10, 10);
+}
 
 });
 

@@ -426,3 +426,14 @@ p.num {
 section#edit form .button.delete {
     margin: 0 calc(var(--len1) / 2) 0 calc(var(--len1) / 2);
 }
+
+#bar_container {
+    width: 100%;
+    height: var(--len1);
+}
+
+#progress_bar {
+    width: 0;
+    height: 100%;
+    background-color: blue;
+}
