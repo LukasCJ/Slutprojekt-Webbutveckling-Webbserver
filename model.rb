@@ -107,7 +107,6 @@ module Model
         query = "SELECT quizzes.* FROM quizzes INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id WHERE quizzes_owners.user_id = ? ORDER BY quizzes.id DESC"
         quizzes = db.execute(query, user_id)
         db.close
-
         return quizzes
     end
 
@@ -117,7 +116,7 @@ module Model
     # @param [Integer] user_id, The id of the user
     #
     # @return [Hash] containing all the data of the quiz
-    def access_quiz(quiz_id, user_id)
+    def access_quiz(quiz_id, user)
     
         db = conn("db/q.db")
         query = "SELECT * FROM quizzes WHERE id = ? LIMIT 1"
@@ -125,10 +124,14 @@ module Model
         query = "SELECT users.id, users.uid, quizzes_owners.creator FROM users INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id WHERE quizzes_owners.quiz_id = ?"
         quiz['owners'] = db.execute(query, quiz_id)
     
-        access = false
-        quiz['owners'].each do |owner|
-            if owner['id'] == user_id
-                access = true
+        if user['admin'] == 1
+            access = true
+        else
+            access = false
+            quiz['owners'].each do |owner|
+                if owner['id'] == user['id']
+                    access = true
+                end
             end
         end
     
@@ -180,7 +183,6 @@ module Model
         #         redirect('/quiz/new?error="no-question"')
         #     end
 
-
         db = conn("db/q.db")
         query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
         quiz_id = db.execute(query, params[:name], params[:desc]).first['id']
@@ -196,13 +198,13 @@ module Model
 
         query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
         db.execute(query, quiz_id, creator_id, 1)
-        query2 = "SELECT id FROM users WHERE uid = ?"
+        query2 = "SELECT id FROM users WHERE uid = ? LIMIT 1"
         owners.each do |o| 
             if o.length > 0
                 if o.scan(/\D/).empty? # om det endast finns siffror i strängen
                     user_id = o.to_i
                 else
-                    user_id = db.execute(query2, o).first
+                    user_id = db.execute(query2, o).first['id']
                 end
 
                 if (user_id != nil) && (user_id != creator_id)
@@ -318,4 +320,16 @@ module Model
         db.execute(query, quiz_id)
     end
 
+    # Fetches all quizzes that matches search (truly all if search = nil)
+    #
+    # @param [String] search, User's search for quizzes
+    #
+    # @return [Array] containing the data of all fetched quizzes
+    def fetch_all_quizzes(search)
+        db = conn("db/q.db")
+        query = "SELECT * FROM quizzes WHERE name LIKE %?% ORDER BY RANDOM()"
+        quizzes = db.execute(query, search)
+        db.close
+        return quizzes
+    end
 end

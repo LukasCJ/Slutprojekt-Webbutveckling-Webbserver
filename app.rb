@@ -107,7 +107,7 @@ end
 get('/quiz/:id/edit') do
   check_logged_in(session[:user_id], false, '/forms')
 
-  result = access_quiz(params[:id], session[:user_id])
+  result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
   access = result['access']
   quiz = prepare_edit(result['quiz'])
 
@@ -138,4 +138,13 @@ post('/quiz/:id/update') do # används för både update (inklusive add owner) &
   end
   db.close
   redirect('/')
+end
+
+get('/quiz/all/:search')
+  check_logged_in(session[:user_id], false, '/forms')
+  if session[:admin] != 1
+    redirect('/')
+  end
+  quizzes = fetch_all_quizzes(param[:search])
+  slim(:"quiz/all", locals:{quizzes:quizzes})
 end
