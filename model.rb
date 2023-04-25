@@ -11,23 +11,6 @@ module Model
         return db
     end
 
-    # Checks if user is logged in and redirects based on arguments
-    #
-    # @param [Integer] user_id, Id for logged in user, nil if not logged in
-    # @param [Boolean] req_state, Says when to redirect, true: redirects when logged in, false: redirects when not
-    # @param [String] path, Describes path for where to redirect the user
-    def check_logged_in(user_id, req_state, url)
-        if user_id == nil
-            state = false
-        else
-            state = true
-        end
-
-        if req_state == state
-            redirect(url)
-        end
-    end
-
     # Creates an account and logs user in
     #
     # @param [Hash] params, Form data
