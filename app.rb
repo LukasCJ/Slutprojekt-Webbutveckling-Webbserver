@@ -14,14 +14,15 @@ include Model
 #
 # @session [Integer] user_id, The id of the user's account on the databse, is asigned as session at login, If not defined the user is sent to page for login/signup
 get('/') do
-  check_login()
-  quizzes = fetch_owned_quizzes()
+  check_logged_in(session[:user_id], false, '/forms')
+  quizzes = fetch_owned_quizzes(session[:user_id])
   slim(:index, locals:{quizzes:quizzes})
 end
 
 # Display login/signup page
 #
 get('/forms') do
+  check_logged_in(session[:user_id], true, '/')
   slim(:forms)
 end
 
@@ -60,7 +61,7 @@ end
 # Display quiz-creator page
 #
 get('/quiz/new') do
-  check_login()
+  check_logged_in(session[:user_id], false, '/forms')
   slim(:"quiz/new")
 end
 
@@ -74,7 +75,7 @@ end
 #
 # @see Model#create_quiz
 post('/quiz/create') do
-  create_quiz(params)
+  create_quiz(params, session[:user_id])
   redirect('/')
 end
 
@@ -87,11 +88,11 @@ end
 #
 # @see Model#access_quiz
 get('/quiz/:id') do
-  check_login()
+  check_logged_in(session[:user_id], false, '/forms')
   
   result = access_quiz(params[:id], session[:user_id])
-  quiz = result['quiz']
   access = result['access']
+  quiz = result['quiz']
 
   slim(:"quiz/index", locals:{access:access, quiz:quiz})
 end
@@ -104,7 +105,7 @@ end
 # @see Model#access_quiz
 # @see Model#prepare_edit
 get('/quiz/:id/edit') do
-  check_login()
+  check_logged_in(session[:user_id], false, '/forms')
 
   result = access_quiz(params[:id], session[:user_id])
   access = result['access']
@@ -130,10 +131,10 @@ post('/quiz/:id/update') do # används för både update (inklusive add owner) &
   quiz_id = params[:id].to_i
 
   db = conn("db/q.db")
-  if params[:delete] == "1"
+  if params[:delete].to_i == 1
     delete_quiz(db, quiz_id)
   else
-    update_quiz(db, quiz_id, params)
+    update_quiz(db, quiz_id, params, session[:user_id])
   end
   db.close
   redirect('/')

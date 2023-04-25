@@ -11,6 +11,23 @@ module Model
         return db
     end
 
+    # Checks if user is logged in and redirects based on arguments
+    #
+    # @param [Integer] user_id, Id for logged in user, nil if not logged in
+    # @param [Boolean] req_state, Says when to redirect, true: redirects when logged in, false: redirects when not
+    # @param [String] path, Describes path for where to redirect the user
+    def check_logged_in(user_id, req_state, url)
+        if user_id == nil
+            state = false
+        else
+            state = true
+        end
+
+        if req_state == state
+            redirect(url)
+        end
+    end
+
     # Creates an account and logs user in
     #
     # @param [Hash] params, Form data
@@ -50,8 +67,8 @@ module Model
     # @option params [String] pwd, The password of the account
     def login(params)
         if params[:uid] == nil || params[:pwd] == nil
-            puts "Fel användarnamn."
-            redirect('/forms?error=wrongusername')
+            puts "Angiven data inte fullständig."
+            redirect('/forms?error=empty')
         end
         
         uid = params[:uid]
@@ -80,27 +97,15 @@ module Model
         end
     end
 
-    # Checks if user is logged in and redirects them to login/signup page if user is not
-    # Used for validation
-    #
-    # @param [Hash] session
-    # @option session [Integer] user_id, The id of account logged into
-    def check_login()
-        if(session[:user_id] == nil)
-            redirect('/forms')
-        end
-    end
-
     # Fetches the quizzes that the user owns
     #
-    # @param [Hash] session
-    # @option session [Integer] user_id, The id of account logged into
+    # @param [Integer] user_id, The id of account whose quizzes should be fetched
     #
     # @return [Array] containing the data of all owned quizzes
-    def fetch_owned_quizzes()
+    def fetch_owned_quizzes(user_id)
         db = conn("db/q.db")
         query = "SELECT quizzes.* FROM quizzes INNER JOIN quizzes_owners ON quizzes_owners.quiz_id = quizzes.id WHERE quizzes_owners.user_id = ? ORDER BY quizzes.id DESC"
-        quizzes = db.execute(query, session[:user_id])
+        quizzes = db.execute(query, user_id)
         db.close
 
         return quizzes
@@ -160,16 +165,21 @@ module Model
     # @option params [String] desc, A description of the quiz
     # @option params [String] content, A stringified JSON array containing the data of every question and every answer
     # @option params [String] owners, The username or ids of the users owning the quiz, separated by commas
-    # @param [Hash] session
-    # @option session [Integer] user_id, The id of the creator
-    def create_quiz(params)
+    # @param [Integer] creator_id, The id of the creator
+    def create_quiz(params, creator_id)
         content = JSON.parse(params[:content])
         owners = params[:owners].split(',').map(&:lstrip) # delar in strängen i en array utefter komma-tecken mellan användarnamnen, tar sedan bort whitespace i början och slutet av varje element
         
         # validering
-        # if q['text'].class != String || q['text'].length < 1
-        #   redirect('/quiz/new?error="faulty-question"')
-        # end
+        # p "content: #{content}"
+        # content.each do |q|
+        #     if content['text'].class != String || content['text'].length == 0
+        #         redirect('/quiz/new?error="no-question"')
+        #     end
+        #     if content['text'].class != String || content['text'].length == 0
+        #         redirect('/quiz/new?error="no-question"')
+        #     end
+
 
         db = conn("db/q.db")
         query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
@@ -185,7 +195,7 @@ module Model
         end
 
         query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-        db.execute(query, quiz_id, session[:user_id], 1)
+        db.execute(query, quiz_id, creator_id, 1)
         query2 = "SELECT id FROM users WHERE uid = ?"
         owners.each do |o| 
             if o.length > 0
@@ -195,7 +205,7 @@ module Model
                     user_id = db.execute(query2, o).first
                 end
 
-                if (user_id != nil) && (user_id != session[:user_id])
+                if (user_id != nil) && (user_id != creator_id)
                     db.execute(query, quiz_id, user_id, 0)
                 end
             end
@@ -204,7 +214,7 @@ module Model
         db.close
     end
 
-    # Prepares a couple of values
+    # Prepares a quiz-values for edit-page
     #
     # @param [Hash] quiz, The quiz data from access_quiz
     # @option quiz [Array] content, The data of the questions and answers
@@ -232,7 +242,6 @@ module Model
     end
 
     # Updates quiz data in database
-    # Current state: doesn't work
     #
     # @param [Hash] params, The form data
     # @option params [String] id, The id of the quiz
@@ -242,9 +251,10 @@ module Model
     # @option params [String] content, A stringified JSON array containing the data of every question and every answer
     # @option params [String] owner_changed, Defined as true if the owner field has changed, otherwise undefined
     # @option params [String] owners, The username or ids of the users owning the quiz, separated by commas
-    # @param [Hash] session
-    # @option session [Integer] user_id, The id of the editor
-    def update_quiz(db, quiz_id, params)       
+    # @param [Hash] editor
+    # @option editor [Integer] id, The id of the editor
+    # @option editor [Integer] uid, The unique username of the editor
+    def update_quiz(db, quiz_id, params, editor_id)       
 
         p "name: #{params[:name]}"
         query = "UPDATE quizzes SET name = ?, desc = ? WHERE id = ?"
@@ -272,26 +282,24 @@ module Model
         
         if params[:owners_changed] == "true"
             
-            # query = "DELETE quizzes_owners WHERE quiz_id = ?; INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-            # db.execute(query, quiz_id, quiz_id, session[:user_id], 1)
-            query = "DELETE quizzes_owners WHERE quiz_id = ?"
+            query = "DELETE FROM quizzes_owners WHERE quiz_id = ?"
             db.execute(query, quiz_id)
             query = "INSERT INTO quizzes_owners (quiz_id, user_id, creator) VALUES (?, ?, ?)"
-            db.execute(query, quiz_id, session[:user_id], 1)
+            db.execute(query, quiz_id, editor_id, 1)
             
             owners = params[:owners].split(',').map(&:lstrip) # separerar sträng till array och tar bort whitespace i slut och början på varje element
             owners.each do |o| # o - owner
                 if o[-1] == "*"
-                    o.chop!
-                    find_id_query = "SELECT id FROM users WHERE uid = ?"
-                    user_id = db.execute(find_id_query, o)
-                    if user_id != session[:user_id]
+                    o.chop! # tar bort sista tecknet i sträng, dvs. "*"
+                    find_id_query = "SELECT id FROM users WHERE uid = ? LIMIT 1"
+                    user_id = db.execute(find_id_query, o).first['id']
+                    if user_id != editor_id
                         db.execute(query, quiz_id, user_id, 1)
                     end
                 else
-                    find_id_query = "SELECT id FROM users WHERE uid = ?"
-                    user_id = db.execute(find_id_query, o)
-                    if user_id != session[:user_id]
+                    find_id_query = "SELECT id FROM users WHERE uid = ? LIMIT 1"
+                    user_id = db.execute(find_id_query, o).first['id']
+                    if user_id != editor_id
                         db.execute(query, quiz_id, user_id, 0)
                     end
                 end
@@ -300,8 +308,6 @@ module Model
     end
 
     def delete_quiz(db, quiz_id)
-        # query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?); DELETE FROM questions WHERE quiz_id = ?; DELETE FROM quizzes WHERE id = ?"
-        # db.execute(query, quiz_id, quiz_id, quiz_id)
         query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)"
         db.execute(query, quiz_id)
         query = "DELETE FROM questions WHERE quiz_id = ?"
