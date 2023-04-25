@@ -10,26 +10,36 @@ enable :sessions
 
 include Model
 
+before(all_of('/', '/quiz/new', '/quiz/:id', '/quiz/:id/edit', '/quiz/all/:search')) do
+  if session[:user_id] == nil
+    redirect('/forms')
+  end
+end
+
+before('/forms') do
+  if session[:user_id] != nil
+    redirect('/')
+  end
+end
+
+before('/quiz/all/:search') do
+  if session[:admin] != 1
+    redirect('/')
+  end
+end
+
 # Display landing page
 #
 # @session [Integer] user_id, The id of the user's account on the databse, is asigned as session at login, If not defined the user is sent to page for login/signup
 get('/') do
-  if session[:user_id] == nil
-    redirect('/forms')
-  else
-    quizzes = fetch_owned_quizzes(session[:user_id])
-    slim(:index, locals:{quizzes:quizzes})
-  end
+  quizzes = fetch_owned_quizzes(session[:user_id])
+  slim(:index, locals:{quizzes:quizzes})
 end
 
 # Display login/signup page
 #
 get('/forms') do
-  if session[:user_id] != nil
-    redirect('/')
-  else
-    slim(:forms)
-  end
+  slim(:forms)
 end
 
 # Inserts a new user account into the database, logs the user into that account and redirects the user to landing page
@@ -67,11 +77,7 @@ end
 # Display quiz-creator page
 #
 get('/quiz/new') do
-  if session[:user_id] == nil
-    redirect('/forms')
-  else
-    slim(:"quiz/new")
-  end
+  slim(:"quiz/new")
 end
 
 # Inserts a new quiz into the database based on user-given information (modified through script.js)
@@ -96,16 +102,11 @@ end
 # @session [Integer] user_id, The id of the visitor
 #
 # @see Model#access_quiz
-get('/quiz/:id') do¨
-  if session[:user_id] == nil
-    redirect('/forms')
-  else   
-    result = access_quiz(params[:id], session[:user_id])
-    access = result['access']
-    quiz = result['quiz']
+get('/quiz/:id') do
+  result = access_quiz(params[:id], session[:user_id])
+  quiz = result['quiz']
 
-    slim(:"quiz/index", locals:{access:access, quiz:quiz})
-  end
+  slim(:"quiz/index", locals:{access:result['access'], quiz:quiz})
 end
 
 # Display quiz-editor page
@@ -116,19 +117,13 @@ end
 # @see Model#access_quiz
 # @see Model#prepare_edit
 get('/quiz/:id/edit') do
-  if session[:user_id] == nil
-    redirect('/forms')
-  else
-    result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
-    access = result['access']
-    quiz = prepare_edit(result['quiz'])
+  result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
+  quiz = prepare_edit(result['quiz'])
 
-    slim(:"quiz/edit", locals:{access:access, quiz:quiz})
-  end
+  slim(:"quiz/edit", locals:{access:result['access'], quiz:quiz})
 end
 
 # Updates quiz information
-# Current state: doesn't work
 #
 # @param [Integer] id, The id of the quiz
 # @param [Integer] delete, Defined as 1 if the quiz should be deleted
@@ -153,11 +148,7 @@ post('/quiz/:id/update') do # används för både update (inklusive add owner) &
   redirect('/')
 end
 
-get('/quiz/all/:search')
-  if session[:user_id] == nil || session[:admin] != 1
-    redirect('/')
-  else
-    quizzes = fetch_all_quizzes(param[:search])
-    slim(:"quiz/all", locals:{quizzes:quizzes})
-  end
+get('/quiz/all/:search') do
+  quizzes = fetch_all_quizzes(param[:search])
+  slim(:"quiz/all", locals:{quizzes:quizzes})
 end

@@ -11,6 +11,15 @@ module Model
         return db
     end
 
+    # Prepares a collection of strings to be used with one before-block
+    #
+    # @params [String] routes, Describes routes to prepare for before-block
+    #
+    # @return [String] string of multiple routes to be used with one before-block
+    def all_of(*routes)
+        return strings.join("|")
+    end
+
     # Creates an account and logs user in
     #
     # @param [Hash] params, Form data
