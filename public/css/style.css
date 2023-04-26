@@ -86,7 +86,7 @@ footer {
     height: var(--len1);
 }
 
-section#yours {
+section#yours, section#all {
     padding-top: var(--len1);
     display: flex;
     justify-content: center;
@@ -100,7 +100,7 @@ p.user_id {
     color: var(--gcolor31);
 }
 
-section#yours > .container {
+section#yours > .container, section#all > .container  {
     width: calc(var(--len2) * 5);
     display: flex;
     flex-direction: column;
@@ -169,7 +169,7 @@ a.play {
     font-weight: 600;
 }
 
-h2.yours {
+h2.yours, h2.all {
     color: var(--gcolor31);
 }
 

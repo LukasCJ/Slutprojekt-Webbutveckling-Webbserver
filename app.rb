@@ -10,7 +10,7 @@ enable :sessions
 
 include Model
 
-before(all_of('/', '/quiz/new', '/quiz/:id', '/quiz/:id/edit', '/quiz/all/:search')) do
+before(all_of('/', '/quiz/new', '/quiz/*', '/quiz/*/edit', '/quiz/all/*')) do
   if session[:user_id] == nil
     redirect('/forms')
   end
@@ -148,7 +148,12 @@ post('/quiz/:id/update') do # används för både update (inklusive add owner) &
   redirect('/')
 end
 
-get('/quiz/all/:search') do
-  quizzes = fetch_all_quizzes(param[:search])
+get('/all') do
+  quizzes = fetch_all_quizzes('')
+  slim(:"quiz/all", locals:{quizzes:quizzes})
+end
+
+get('/all/:search') do
+  quizzes = fetch_all_quizzes(params[:search])
   slim(:"quiz/all", locals:{quizzes:quizzes})
 end

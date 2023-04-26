@@ -76,7 +76,7 @@ function progressBar(start, duration, delay) { // start = startpunkt i procent, 
 
 $(document).ready(function() {
 
-$('section#yours .button.desc').click(function() {
+$('section#yours .button.desc, section#all .button.desc').click(function() {
     var container = $(this).parents('.quiz_list > li').find('.desc_container');
     if(container.hasClass('open')) {
         $(this).text('View description');

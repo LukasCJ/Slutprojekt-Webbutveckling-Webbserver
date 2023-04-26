@@ -17,7 +17,7 @@ module Model
     #
     # @return [String] string of multiple routes to be used with one before-block
     def all_of(*routes)
-        return strings.join("|")
+        return routes.join("|")
     end
 
     # Creates an account and logs user in
@@ -319,8 +319,13 @@ module Model
     # @return [Array] containing the data of all fetched quizzes
     def fetch_all_quizzes(search)
         db = conn("db/q.db")
-        query = "SELECT * FROM quizzes WHERE name LIKE %?% ORDER BY RANDOM()"
-        quizzes = db.execute(query, search)
+        if search == ''
+            query = "SELECT * FROM quizzes ORDER BY RANDOM()"
+            quizzes = db.execute(query)
+        else
+            query = "SELECT * FROM quizzes WHERE name LIKE ? ORDER BY RANDOM()"
+            quizzes = db.execute(query, '%#{search}%')
+        end
         db.close
         return quizzes
     end
