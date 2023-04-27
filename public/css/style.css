@@ -100,7 +100,7 @@ p.user_id {
     color: var(--gcolor31);
 }
 
-section#yours > .container, section#all > .container  {
+section > .container  {
     width: calc(var(--len2) * 5);
     display: flex;
     flex-direction: column;
@@ -169,7 +169,7 @@ a.play {
     font-weight: 600;
 }
 
-h2.yours, h2.all {
+h2.yours, h2.all, h2.active_quiz {
     color: var(--gcolor31);
 }
 
@@ -206,16 +206,15 @@ div.denied_container .button {
 }
 
 div.ready_container {
-    height: max-content;
-    width: calc(var(--len2) * 2);
+    width: calc(var(--len2) * 5);
+    height: calc(var(--len1) * 4);
     background-color: var(--gcolor31);
     padding: var(--len1);
     box-sizing: border-box;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    row-gap: calc(var(--len1) / 2);
-    margin-top: var(--len1);
+    column-gap: calc(var(--len1) / 2);
     border-radius: var(--b);
 }
 
@@ -430,10 +429,61 @@ section#edit form .button.delete {
 #bar_container {
     width: 100%;
     height: var(--len1);
+    border: var(--b) solid var(--gcolor12);
+    border-radius: calc(var(--b)*2);
+    overflow: hidden;
+    box-sizing: border-box;
+    background-color: var(--gcolor12);
 }
 
 #progress_bar {
     width: 0;
     height: 100%;
-    background-color: blue;
+    background-color: var(--gcolor21);
+    border-radius: var(--b);
+}
+
+section#quiz {
+    padding-top: var(--len1);
+}
+
+section#quiz .question_container {
+    width: 100%;
+    height: calc(var(--len1) * 4);
+    background-color: var(--gcolor31);
+    padding: var(--len1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: calc(var(--len1) / 2);
+    box-sizing: border-box;
+    border-radius: var(--b);
+    color: var(--gcolor12);
+}
+
+section#quiz .question_container p {
+    font-style: italic;
+}
+
+section#quiz .answer_container {
+    height: 100%;
+    width: 100%;
+    background-color: var(--gcolor31);
+    border-radius: var(--b);
+}
+
+section#quiz .answers_container_inner {
+    display: grid;
+    grid-auto-columns: calc(var(--len1) * 4);
+    grid-template-rows: 1fr 1fr;
+    gap: var(--len1);
+}
+
+section#quiz .answers_container_outer {
+    height: max-content;
+    overflow: hidden;
+}
+
+section#quiz .answers_container_outer.closed {
+    height: 0;
 }

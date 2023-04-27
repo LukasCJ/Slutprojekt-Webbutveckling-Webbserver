@@ -56,22 +56,43 @@ function prepareQuizSubmit(type) {
 }
 
 function presentAnswers() {
-
+    $('answers_container_outer').removeClass('closed');
 }
 
-function progressBar(start, duration, delay) { // start = startpunkt i procent, duration = hur lång tid det ska ta för progressbaren att bli klar, delay = tid i millisekunder mellan uppdaterin av bar, i = på eller av (1 eller 0)
+function progressBar(start, duration, delay, finFunc) { // start = startpunkt i procent, duration = hur lång tid det ska ta för progressbaren att bli klar, delay = tid i millisekunder mellan uppdaterin av bar, i = på eller av (1 eller 0), finFinc = function att köra när progress-baren är klar
     var step = (100-start)/((duration*1000)/delay);
     var bar = $('#progress_bar');
     var width = start;
     var id = setInterval(function() {
-        if (width >= 100) {
+        if(width >= 100) {
             clearInterval(id);
-            presentAnswers();
-          } else {
+            bar.css('width',  "100%");
+            finFunc();
+        } else {
             width += step;
             bar.css('width',  width+"%");
         }
     }, delay);
+}
+
+function quiz() {
+    let content = $('section#quiz').data('quiz')['content'], elems, answers;
+    content.forEach(q => {
+        answers = '';
+        q['answers'].forEach(a => {
+            answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}"><h2>${a['text']}</h2></div>`;
+        });
+        elems = `<div class="question_container" qid="${q['id']}">
+        <p class="question_label">Question ${q['id']}:</p>
+        <h2>${q['text']}</h2>
+        </div>
+        <div id="bar_container"><div id="progress_bar"></div></div>
+        <div class="answers_container_outer closed">
+        <div class="answers_container_inner">${answers}</div>
+        </div>`;
+        $('.ready_container, .question_container').first().replaceWith(elems);
+        progressBar(0, 0.4, 2, function() { presentAnswers() });
+    });
 }
 
 $(document).ready(function() {
@@ -238,9 +259,7 @@ $('.content_container .button.delete').click(function() { // raderar valt elemen
     }  
 });
 
-if($('section#quiz').length == 1) {
-    progressBar(0, 10, 10);
-}
+$('section#quiz .button.play').click(quiz());
 
 });
 

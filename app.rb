@@ -10,7 +10,7 @@ enable :sessions
 
 include Model
 
-before(all_of('/', '/quiz/new', '/quiz/*', '/quiz/*/edit', '/quiz/all/*')) do
+before(all_of('/', '/quiz/new', '/quiz/*', '/quiz/*/edit', '/all/*')) do
   if session[:user_id] == nil
     redirect('/forms')
   end
@@ -103,7 +103,7 @@ end
 #
 # @see Model#access_quiz
 get('/quiz/:id') do
-  result = access_quiz(params[:id], session[:user_id])
+  result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
   quiz = result['quiz']
 
   slim(:"quiz/index", locals:{access:result['access'], quiz:quiz})

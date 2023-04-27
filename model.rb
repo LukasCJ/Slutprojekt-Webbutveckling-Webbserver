@@ -116,6 +116,7 @@ module Model
         query = "SELECT users.id, users.uid, quizzes_owners.creator FROM users INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id WHERE quizzes_owners.quiz_id = ?"
         quiz['owners'] = db.execute(query, quiz_id)
     
+        p "user: #{user}"
         if user['admin'] == 1
             access = true
         else
@@ -323,8 +324,9 @@ module Model
             query = "SELECT * FROM quizzes ORDER BY RANDOM()"
             quizzes = db.execute(query)
         else
+            p search
             query = "SELECT * FROM quizzes WHERE name LIKE ? ORDER BY RANDOM()"
-            quizzes = db.execute(query, '%#{search}%')
+            quizzes = db.execute(query, "'%#{search}%'")
         end
         db.close
         return quizzes
