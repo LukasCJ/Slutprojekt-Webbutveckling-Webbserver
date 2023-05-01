@@ -173,7 +173,7 @@ h2.yours, h2.all, h2.active_quiz {
     color: var(--gcolor31);
 }
 
-h2.quiz_name {
+h2.quiz_name, section#quiz .answer_container h2 {
     color: var(--gcolor11);
 }
 
@@ -462,7 +462,7 @@ section#quiz .question_container {
 }
 
 section#quiz .question_container p {
-    font-style: italic;
+    font-family:'Times New Roman', Times, serif
 }
 
 section#quiz .answer_container {
@@ -470,12 +470,15 @@ section#quiz .answer_container {
     width: 100%;
     background-color: var(--gcolor31);
     border-radius: var(--b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 section#quiz .answers_container_inner {
     display: grid;
-    grid-auto-columns: calc(var(--len1) * 4);
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: calc(var(--len1) * 4);
     gap: var(--len1);
 }
 

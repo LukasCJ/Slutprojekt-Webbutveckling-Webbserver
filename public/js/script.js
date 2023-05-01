@@ -55,8 +55,17 @@ function prepareQuizSubmit(type) {
     }
 }
 
-function presentAnswers() {
-    $('answers_container_outer').removeClass('closed');
+function shuffle(arr) {
+    let current_i = (arr.length-1), random_i;
+    console.log(arr);
+    while(current_i >= 0) {
+        random_i = Math.floor(Math.random() * current_i);
+        current_i--;
+
+        [arr[current_i], arr[random_i]] = [arr[random_i], arr[current_i]];
+    }
+    console.log(arr);
+    return arr;
 }
 
 function progressBar(start, duration, delay, finFunc) { // start = startpunkt i procent, duration = hur lång tid det ska ta för progressbaren att bli klar, delay = tid i millisekunder mellan uppdaterin av bar, i = på eller av (1 eller 0), finFinc = function att köra när progress-baren är klar
@@ -75,23 +84,72 @@ function progressBar(start, duration, delay, finFunc) { // start = startpunkt i 
     }, delay);
 }
 
-function quiz() {
-    let content = $('section#quiz').data('quiz')['content'], elems, answers;
-    content.forEach(q => {
-        answers = '';
-        q['answers'].forEach(a => {
-            answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}"><h2>${a['text']}</h2></div>`;
+function quizCreateQuestion(q) {
+    let elems, answers;
+    answers = '';
+    console.log(q);
+    shuffle(q['answers']).forEach(a => {
+        answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}"><h2>${a['text']}</h2></div>`;
+    });
+    elems = `<div class="question_container" qid="${q['id']}">
+    <p class="question_label">Question ${q['id']}:</p>
+    <h2>${q['text']}</h2>
+    </div>
+    <div id="bar_container"><div id="progress_bar"></div></div>
+    <div class="answers_container_outer closed">
+    <div class="answers_container_inner">${answers}</div>
+    </div>`;
+    $('h2.active_quiz ~ *').remove();
+    $('h2.active_quiz').after(elems);
+}
+
+function quizRevealAnswers(data, elem) {
+    $('#progress_bar').addClass('timer');
+    var timer_elem = $('.timer'), local_time = 0.00;
+    elem.removeClass('closed');
+
+    timer = setInterval(function() {
+        local_time += 0.01;
+        timer_elem.text(local_time.toFixed(2));
+    }, 10);
+
+    $('.answer_container').click(function() {
+        let qid = $(this).attr('qid');
+        let aid = $(this).attr('aid');
+        let answer = data['quiz-content'][qid-1]['answers'][aid-1];
+        quizPress(data, answer, function() {
+            if(qid >= data['quiz-content'].length) {
+                quizFinish(data);
+            } else {
+                playQuiz(data, qid);
+            }
         });
-        elems = `<div class="question_container" qid="${q['id']}">
-        <p class="question_label">Question ${q['id']}:</p>
-        <h2>${q['text']}</h2>
-        </div>
-        <div id="bar_container"><div id="progress_bar"></div></div>
-        <div class="answers_container_outer closed">
-        <div class="answers_container_inner">${answers}</div>
-        </div>`;
-        $('.ready_container, .question_container').first().replaceWith(elems);
-        progressBar(0, 0.4, 2, function() { presentAnswers() });
+    });
+}
+
+function quizPress(data, answer, finFunc) {
+    clearInterval(timer);
+    $('.answer_container').addClass('correct');
+    data['time'] += parseFloat($('.timer').text());
+    data['score'] += parseInt(answer['correct']);
+    setTimeout(finFunc, 1000);
+}
+
+function quizFinish(data) {
+    elems = `<div class="fin_container">
+    <h2>Score: ${data['score']}/${data['quiz-content'].length}</h2>
+    <h2>Time: ${data['time']} seconds</h2>
+    </div>`;
+    $('h2.active_quiz ~ *').remove();
+    $('h2.active_quiz').after(elems);
+}
+
+function playQuiz(data, i) {
+    console.log('wack');
+    console.log(data);
+    quizCreateQuestion(data['quiz-content'][i]);
+    progressBar(0, 1.5, (1000/48), function() {
+        quizRevealAnswers(data, $('.answers_container_outer')); 
     });
 }
 
@@ -109,7 +167,7 @@ $('section#yours .button.desc, section#all .button.desc').click(function() {
 });
 
 $('section#forms .button.switch_forms').click(function() {
-    container = $('.form_container');
+    let container = $('.form_container');
     if(container.hasClass('login')) {
         container.removeClass('login');
         container.addClass('signup');
@@ -259,7 +317,13 @@ $('.content_container .button.delete').click(function() { // raderar valt elemen
     }  
 });
 
-$('section#quiz .button.play').click(quiz());
+if($('section#quiz').length == 1) {
+    console.log($('section#quiz').data('quiz'));
+    let data = {'quiz-content': $('section#quiz').data('quiz')['content'], 'score': 0, 'time': 0.00};
+    console.log('yo');
+    console.log(data);
+    $('.button.play').click(function() { playQuiz(data, 0) });
+}
 
 });
 
