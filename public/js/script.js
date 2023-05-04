@@ -122,8 +122,19 @@ function quizRevealAnswers(data, elem) {
 
     $('.answer_container').click(function() {
         let qid = $(this).attr('qid');
-        let aid = $(this).attr('aid');
-        let answer = data['questions'][qid-1]['answers'][aid-1];
+        var question = data['questions'].find(q => q['id'] == qid);
+
+        $('.answer_container').each(function() {
+            let aid = $(this).attr('aid'), answer;
+            answer = question['answers'].find(a => a['id'] == aid);
+            if(answer['correct'] == 1) {
+                $(this).addClass('correct');
+            }
+        })
+        
+        let aid = $(this).attr('aid'), answer;
+        answer = question['answers'].find(a => a['id'] == aid);
+
         quizPress(data, answer, function() {
             if(qid >= data['questions'].length) {
                 quizFinish(data);

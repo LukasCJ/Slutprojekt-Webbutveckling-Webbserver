@@ -534,13 +534,8 @@ section#quiz .answer_container {
     align-items: center;
 }
 
-section#quiz .answer_container[correct="0"].reveal {
-    background-color: var(--gcolor21);
-}
-
-section#quiz .answer_container[correct="1"].reveal {
-    background-color: var(--gcolor41);
-}
+section#quiz .answer_container.reveal { background-color: var(--gcolor21); }
+section#quiz .answer_container.correct.reveal { background-color: var(--gcolor41); }
 
 section#quiz .answer_container:hover {
     cursor: pointer;
