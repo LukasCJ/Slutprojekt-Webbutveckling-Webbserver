@@ -15,18 +15,17 @@ include Model
 # @session [Integer] user_id, The user's account's id
 #
 # @see Model#all_of
-before(all_of('/', '/quiz/new', '/quiz/*', '/quiz/*/edit', '/all/*')) do
-  if session[:user_id] == nil
-    redirect('/forms')
-  end
-end
-
-# Locks page for people who are logged in
-#
-# @session [Integer] user_id, The user's account's id
-before('/forms') do
-  if session[:user_id] != nil
-    redirect('/')
+before do
+  if request.get?
+    if request.path_info != '/forms'
+      if session[:user_id] == nil
+        redirect('/forms')
+      end
+    else
+      if session[:user_id] != nil
+        redirect('/')
+      end
+    end
   end
 end
 
@@ -54,7 +53,7 @@ before('/signup') do
   if params[:pwd] != params[:pwd_confirm]
     redirect('/forms?error=pwd-match');
   end
-  if params[:uid] !=~ /^\w*$/
+  if params[:uid] !~ /^[a-zA-Z0-9]*$/
     redirect('/forms?error=faulty-uid');
   end
   if uid_taken(params[:uid]) != false
@@ -102,6 +101,7 @@ post('/signup') do
   id = create_account(params)
   session[:user_id] = id
   session[:user_uid] = params[:uid]
+  session[:admin] = 0
   redirect('/')
 end
 
@@ -116,7 +116,6 @@ post('/login') do
   if result == false
     redirect('/forms?error=faulty-login');
   end
-  p result
   session[:user_id] = result['id']
   session[:user_uid] = result['uid']
   session[:admin] = result['admin']
@@ -127,6 +126,7 @@ end
 post('/logout') do
   session[:user_id] = nil
   session[:user_uid] = nil
+  session[:admin] = nil
   redirect('/')
 end
 
@@ -146,13 +146,30 @@ end
 #
 # @see Model#create_quiz
 post('/quiz/create') do
-  create_quiz(params, session[:user_id])
+  create_quiz(params)
   redirect('/')
 end
 
+# Prepare and send values for user-search on /quiz/new & /quiz/:id/edit
+#
+# @param [String] :for, What kind of thing we're searching for (in case we wwant to search for something else than users in the future)
+# @param [String] :input, The input of the user, the search string for usernames
+#
+# @see Model#access_quiz
+post('/quick-search') do 
+  if request.xhr?
+    case params[:for]
+    when 'users'
+      users = fetch_users(params[:current], params[:input])
+      erb users.to_json
+    else
+      users = fetch_users(params[:current], params[:input])
+      erb users.to_json
+    end
+  end
+end
+
 # Display quiz-player page
-# Corrent state: only really shows whether you own the quiz or not
-# Meant to allow you to play the quiz
 #
 # @param [Integer] :id, The id of the quiz
 # @session [Integer] user_id, The id of the visitor
@@ -174,9 +191,14 @@ end
 # @see Model#prepare_edit
 get('/quiz/:id/edit') do
   result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
-  quiz = prepare_edit(result['quiz'])
+  quiz = result['quiz']
+  quiz['content_json'] = quiz['content'].to_json
 
-  slim(:"quiz/edit", locals:{access:result['access'], quiz:quiz})
+  if result['access'] == 0
+    redirect('/')
+  else
+    slim(:"quiz/edit", locals:{access:result['access'], quiz:quiz})
+  end
 end
 
 # Updates quiz information
@@ -193,22 +215,19 @@ end
 # @see Model#update_quiz
 post('/quiz/:id/update') do # används för både update (inklusive add owner) & delete
   quiz_id = params[:id].to_i
-
-  db = conn("db/q.db")
   if params[:delete].to_i == 1
-    delete_quiz(db, quiz_id)
+    delete_quiz(quiz_id)
   else
-    update_quiz(db, quiz_id, params, session[:user_id])
+    update_quiz(quiz_id, params)
   end
-  db.close
   redirect('/')
 end
 
 # Page where admins can see all quizzes in database
 # 
-# @see Model#fetch_all_quizzes
+# @see Model#fetch_quizzes
 get('/all') do
-  quizzes = fetch_all_quizzes('')
+  quizzes = fetch_quizzes('')
   slim(:"quiz/all", locals:{quizzes:quizzes})
 end
 
@@ -216,8 +235,8 @@ end
 #
 # @param [String] :search, The search specifying the likes of the name of the quiz
 # 
-# @see Model#fetch_all_quizzes
+# @see Model#fetch_quizzes
 get('/all/:search') do
-  quizzes = fetch_all_quizzes(params[:search])
+  quizzes = fetch_quizzes(params[:search])
   slim(:"quiz/all", locals:{quizzes:quizzes})
 end

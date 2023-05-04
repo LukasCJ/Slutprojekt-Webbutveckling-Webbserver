@@ -4,11 +4,19 @@ section#edit
         form.edit action="/quiz/#{quiz['id']}/update" method="post" onsubmit="return prepareQuizSubmit('edit')"
             input type="text" name="name" placeholder="Quiz-titel" value="#{quiz['name']}"
             input type="text" name="desc" placeholder="Beskrivning" value="#{quiz['desc']}"
-            input type="text" name="owners" placeholder="Lägg till behöriga" value="#{quiz['owner_str']}" current="#{quiz['owner_str']}"
             .buttons 
                 button.button.create type="submit" Ändra
                 button.button.delete type="submit" name="delete" value="1" Släng
                 a.button.cancel href="/" Avbryt
+            - if access == 2
+                input type="text" name="owners" placeholder="Lägg till behöriga"
+                ul#quick_search_owners
+            ul#added_owners
+                - quiz['owners'].each do |owner|
+                    - if owner['creator'] == 1
+                        li.owner_container.locked user-id="#{owner['id']}" = "#{owner['uid']}*"
+                    - else 
+                        li.owner_container user-id="#{owner['id']}" = "#{owner['uid']}"
     .container 
         h2.content Frågor och svar 
         .content_container current='#{quiz["content_json"]}'

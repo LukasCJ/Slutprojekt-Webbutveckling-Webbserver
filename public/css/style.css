@@ -223,7 +223,6 @@ div.ready_container h2.ready {
 }
 
 section#forms {
-    /* height: 100vh; */
     overflow: hidden;
 }
 
@@ -263,9 +262,6 @@ section#forms form {
     padding: var(--len1);
     border-radius: var(--b);
 }
-
-/* section#forms form[action="login"].off { left: -200px;; }
-section#forms form[action="signup"].off { left: 2000px; } */
 
 input[type="text"], input[type="password"] {
     width: calc(var(--len1) * 6);
@@ -422,6 +418,62 @@ p.num {
     color: var(--gcolor13);
 }
 
+ul#quick_search_owners {
+    width: calc(var(--len1)*8);
+    height: max-content;
+    background-color: var(--gcolor32);
+    border-radius: var(--b);
+    /* transition: height ease 0.2s; */
+    padding: calc(var(--len1) / 2);
+    display: flex;
+    flex-wrap: wrap;
+    /* justify-content: space-between; */
+    gap: calc(var(--len1) / 2);
+    box-shadow: rgba(27, 27, 27, 0.2) 0px 2px 8px 0px;
+}
+
+ul#added_owners {
+    width: calc(var(--len1)*8);
+    height: max-content;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--len1) / 2);
+}
+
+li.owner_container {
+    max-width: 100%;
+    width: max-content;
+    min-height: max-content;
+    height: calc(var(--len1) * 1.2);
+    border-radius: var(--b);
+    background-color: var(--gcolor41);
+    border: var(--b) solid var(--gcolor11);
+    color: var(--gcolor11);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    box-sizing: border-box;
+    transition: background-color ease 0.2s;
+    padding: calc(var(--len1)*0.4);
+    box-shadow: rgba(27, 27, 27, 0.2) 0px 2px 8px 0px;
+}
+
+li.owner_container:hover {
+    background-color: var(--gcolor42);
+    cursor: pointer;
+}
+
+ul#quick_search_owners li.owner_container {
+    background-color: var(--gcolor21);
+}
+
+ul#quick_search_owners li.owner_container:hover {
+    background-color: var(--gcolor22);
+}
+
 section#edit form .button.delete {
     margin: 0 calc(var(--len1) / 2) 0 calc(var(--len1) / 2);
 }
@@ -441,6 +493,13 @@ section#edit form .button.delete {
     height: 100%;
     background-color: var(--gcolor21);
     border-radius: var(--b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+p.timer {
+    color: var(--gcolor11);
 }
 
 section#quiz {

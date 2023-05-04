@@ -8,8 +8,10 @@ section#yours
                     div.top
                         div.left
                             h2.quiz_name = quiz["name"]
-                            button.button.desc type="button" View description
+                            - if quiz["desc"].length > 0
+                                button.button.desc type="button" View description
                             a.button href="/quiz/#{quiz['id']}/edit" Edit
                         a.play href="/quiz/#{quiz['id']}" Play
-                    div.desc_container
-                        p.desc = quiz["desc"]
+                    - if quiz["desc"].length > 0
+                        div.desc_container
+                            p.desc = quiz["desc"]

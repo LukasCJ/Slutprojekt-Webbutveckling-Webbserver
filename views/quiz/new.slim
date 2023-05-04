@@ -4,10 +4,13 @@ section#create
         form.create action="/quiz/create" method="post" onsubmit="return prepareQuizSubmit('create')"
             input type="text" name="name" placeholder="Quiz-titel"
             input type="text" name="desc" placeholder="Beskrivning"
-            input type="text" name="owners" placeholder="Lägg till behöriga"
             .buttons 
                 button.button.create type="submit" Skapa
                 a.button.cancel href="/" Avbryt
+            input type="text" name="owners" placeholder="Lägg till behöriga"
+            ul#quick_search_owners
+            ul#added_owners
+                li.owner_container.locked user-id="#{session['user_id']}" = "#{session['user_uid']}*"
     .container 
         h2.content Frågor och svar 
         .content_container 

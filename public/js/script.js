@@ -8,13 +8,7 @@ function makeAnswer(qid, aid) {
 }
 
 function prepareQuizSubmit(type) {
-    var content = [];
-    var q, a, qid;
-
-    if($('.question').length == 0) { // validering
-        alert("Quiz saknar frågor.");
-        return false; 
-    }
+    var content = [], owners = [], q, a, qid;
 
     $('.question').each(function() {
         q = {}; // object
@@ -38,29 +32,46 @@ function prepareQuizSubmit(type) {
         })
         content.push(q);
     });
-    var json = JSON.stringify(content);
+    var content_json = JSON.stringify(content);
 
     if(type == "create") {
-        $('form.create').append(`<input type="hidden" name="content" value='${json}'>`);
+        $('form.create').append(`<input type="hidden" name="content" value='${content_json}'>`);
     } else if(type == "edit") {
-        json_current = $('.content_container');
-        if(json != json_current) {
-            $('form.edit').append(`<input type="hidden" name="content" value='${json}' current='${json_current}'>`);
+        content_json_current = $('.content_container').attr('current');
+        if(content_json != content_json_current) {
+            $('form.edit').append(`<input type="hidden" name="content" value='${content_json}'>`);
         } else {
             $('input[name="content"]').remove(); // om någon skickar in post och sedan återvändre med bak-pil, kommer elementet finnas kvar även om de ångrar ändringarna i content, därför ser vi till att den inte finns såhär
         }
-        if($('input[name="owners"]').val() != $('input[name="owners"]').attr('current')) {
-            $('form.edit').append('<input type="hidden" name="owners_changed" value="true">');
+    }
+
+    if($('#quick_search_owners').length == 1) {
+        $('#added_owners .owner_container').each(function() {
+            owners.push($(this).text());
+        });
+        var owners_json = JSON.stringify(owners);
+
+        if(type == "create") {
+            $('input[name="owners"]').val(owners_json);
+        } else if(type == "edit") {
+            owners_json_current = $('#added_owners').attr('current');
+            if(owners_json != owners_json_current) {
+                $('input[name="owners"]').val(owners_json);
+            } else {
+                $('input[name="owners"]').remove();
+            }
         }
     }
 }
 
 function shuffle(arr) {
-    let current_i = (arr.length-1), random_i;
-    while(current_i >= 0 && arr.length > 1) {
-        random_i = Math.floor(Math.random() * current_i);
-        [arr[current_i], arr[random_i]] = [arr[random_i], arr[current_i]];
-        current_i--;
+    if(arr.length > 1) {
+        let current_i = (arr.length-1), random_i;
+        while(current_i >= 0) {
+            random_i = Math.floor(Math.random() * (current_i+1)); // pga floor måste vi addera ett till current_i för att skapa möjligheten för elementet att inte ändra plats
+            [arr[current_i], arr[random_i]] = [arr[random_i], arr[current_i]];
+            current_i--;
+        }
     }
     return arr;
 }
@@ -83,10 +94,8 @@ function progressBar(start, duration, delay, finFunc) { // start = startpunkt i 
 
 function quizCreateQuestion(q) {
     let elems, answers;
-    let answers_arr = q['answers'];
-    console.log(answers_arr);
     answers = '';
-    shuffle(answers_arr).forEach(a => {
+    shuffle(q['answers']).forEach(a => {
         answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}" correct="${a['correct']}"><h2>${a['text']}</h2></div>`;
     });
     elems = `<div class="question_container" qid="${q['id']}">
@@ -102,7 +111,7 @@ function quizCreateQuestion(q) {
 }
 
 function quizRevealAnswers(data, elem) {
-    $('#progress_bar').addClass('timer');
+    $('#progress_bar').append('<p class="timer"></p>');
     var timer_elem = $('.timer'), local_time = 0.00;
     elem.removeClass('closed');
 
@@ -143,8 +152,7 @@ function quizFinish(data) {
 }
 
 function playQuiz(data, i) {
-    let question = data['questions'][i];
-    quizCreateQuestion(question);
+    quizCreateQuestion(data['questions'][i]);
     progressBar(0, 1.5, (1000/48), function() {
         quizRevealAnswers(data, $('.answers_container_outer')); 
     });
@@ -321,6 +329,64 @@ if($('section#quiz').length == 1) {
         playQuiz(data, 0);
     });
 }
+
+$('section#create, section#edit').find('input[name="owners"]').focus(function() {
+    let result_box = $('ul#quick_search_owners'), current_owners;
+    $(this).keyup(function() {
+
+        current = [];
+        $('#added_owners .owner_container').each(function() {
+            current.push(parseInt($(this).attr('user-id')));
+        });
+
+        let input = $(this).val();
+        
+        if(input.length > 0) {
+
+            $.ajax({
+
+                context: this,
+                url:'/quick-search',
+                method:"POST",
+                dataType:"json",
+                data:{'for':'users', 'input':input, 'current':current},
+
+                success: function(users) {
+                    if(users.length > 0) {
+                        let result = '';
+
+                        users.forEach(function(user) {
+                            result += `<li class="owner_container" user-id="${user['id']}">${user['uid']}</li>`;
+                        });
+
+                        result_box.empty();
+                        result_box.append(result);
+                    } else {
+                        result_box.empty();
+                    }
+                }
+            });
+        } else {
+            result_box.empty();
+        }
+    });
+});
+
+$('#quick_search_owners').on('click', '.owner_container', function() {
+    let elem = $(this).clone();
+    $('#added_owners').append(elem);
+    $(this).remove();
+});
+
+$('#added_owners').on('click', '.owner_container', function() {
+    if(!$(this).hasClass('locked')) {
+        let elem = $(this).clone();
+        if($('input[name="owners"]').val() != "" && $(this).text().includes($('input[name="owners"]').val())) {
+            $('#quick_search_owners').append(elem);
+        }
+        $(this).remove();
+    }
+});
 
 });
 
