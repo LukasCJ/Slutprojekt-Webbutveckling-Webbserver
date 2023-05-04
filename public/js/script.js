@@ -57,14 +57,11 @@ function prepareQuizSubmit(type) {
 
 function shuffle(arr) {
     let current_i = (arr.length-1), random_i;
-    console.log(arr);
-    while(current_i >= 0) {
+    while(current_i >= 0 && arr.length > 1) {
         random_i = Math.floor(Math.random() * current_i);
-        current_i--;
-
         [arr[current_i], arr[random_i]] = [arr[random_i], arr[current_i]];
+        current_i--;
     }
-    console.log(arr);
     return arr;
 }
 
@@ -86,10 +83,11 @@ function progressBar(start, duration, delay, finFunc) { // start = startpunkt i 
 
 function quizCreateQuestion(q) {
     let elems, answers;
+    let answers_arr = q['answers'];
+    console.log(answers_arr);
     answers = '';
-    console.log(q);
-    shuffle(q['answers']).forEach(a => {
-        answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}"><h2>${a['text']}</h2></div>`;
+    shuffle(answers_arr).forEach(a => {
+        answers += `<div class="answer_container" qid="${q['id']}" aid="${a['id']}" correct="${a['correct']}"><h2>${a['text']}</h2></div>`;
     });
     elems = `<div class="question_container" qid="${q['id']}">
     <p class="question_label">Question ${q['id']}:</p>
@@ -116,9 +114,9 @@ function quizRevealAnswers(data, elem) {
     $('.answer_container').click(function() {
         let qid = $(this).attr('qid');
         let aid = $(this).attr('aid');
-        let answer = data['quiz-content'][qid-1]['answers'][aid-1];
+        let answer = data['questions'][qid-1]['answers'][aid-1];
         quizPress(data, answer, function() {
-            if(qid >= data['quiz-content'].length) {
+            if(qid >= data['questions'].length) {
                 quizFinish(data);
             } else {
                 playQuiz(data, qid);
@@ -129,7 +127,7 @@ function quizRevealAnswers(data, elem) {
 
 function quizPress(data, answer, finFunc) {
     clearInterval(timer);
-    $('.answer_container').addClass('correct');
+    $('.answer_container').addClass('reveal');
     data['time'] += parseFloat($('.timer').text());
     data['score'] += parseInt(answer['correct']);
     setTimeout(finFunc, 1000);
@@ -137,17 +135,16 @@ function quizPress(data, answer, finFunc) {
 
 function quizFinish(data) {
     elems = `<div class="fin_container">
-    <h2>Score: ${data['score']}/${data['quiz-content'].length}</h2>
-    <h2>Time: ${data['time']} seconds</h2>
+    <h2>Score: ${data['score']}/${data['questions'].length}</h2>
+    <h2>Time: ${data['time'].toFixed(2)} seconds</h2>
     </div>`;
     $('h2.active_quiz ~ *').remove();
     $('h2.active_quiz').after(elems);
 }
 
 function playQuiz(data, i) {
-    console.log('wack');
-    console.log(data);
-    quizCreateQuestion(data['quiz-content'][i]);
+    let question = data['questions'][i];
+    quizCreateQuestion(question);
     progressBar(0, 1.5, (1000/48), function() {
         quizRevealAnswers(data, $('.answers_container_outer')); 
     });
@@ -318,11 +315,11 @@ $('.content_container .button.delete').click(function() { // raderar valt elemen
 });
 
 if($('section#quiz').length == 1) {
-    console.log($('section#quiz').data('quiz'));
-    let data = {'quiz-content': $('section#quiz').data('quiz')['content'], 'score': 0, 'time': 0.00};
-    console.log('yo');
-    console.log(data);
-    $('.button.play').click(function() { playQuiz(data, 0) });
+    let quiz = $('section#quiz').data('quiz');
+    let data = {'questions': quiz['content'], 'score': 0, 'time': 0.00};
+    $('.button.play').click(function() { 
+        playQuiz(data, 0);
+    });
 }
 
 });

@@ -173,7 +173,7 @@ h2.yours, h2.all, h2.active_quiz {
     color: var(--gcolor31);
 }
 
-h2.quiz_name, section#quiz .answer_container h2 {
+h2.quiz_name, section#quiz .answer_container h2, .fin_container h2 {
     color: var(--gcolor11);
 }
 
@@ -475,6 +475,18 @@ section#quiz .answer_container {
     align-items: center;
 }
 
+section#quiz .answer_container[correct="0"].reveal {
+    background-color: var(--gcolor21);
+}
+
+section#quiz .answer_container[correct="1"].reveal {
+    background-color: var(--gcolor41);
+}
+
+section#quiz .answer_container:hover {
+    cursor: pointer;
+}
+
 section#quiz .answers_container_inner {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -489,4 +501,17 @@ section#quiz .answers_container_outer {
 
 section#quiz .answers_container_outer.closed {
     height: 0;
+}
+
+section#quiz .fin_container {
+    width: calc(var(--len2) * 5);
+    height: calc(var(--len1) * 4);
+    background-color: var(--gcolor31);
+    padding: var(--len1);
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    column-gap: calc(var(--len1) / 2);
+    border-radius: var(--b);
 }

@@ -10,21 +10,70 @@ enable :sessions
 
 include Model
 
+# Locks pages for people who aren't logged in
+#
+# @session [Integer] user_id, The user's account's id
+#
+# @see Model#all_of
 before(all_of('/', '/quiz/new', '/quiz/*', '/quiz/*/edit', '/all/*')) do
   if session[:user_id] == nil
     redirect('/forms')
   end
 end
 
+# Locks page for people who are logged in
+#
+# @session [Integer] user_id, The user's account's id
 before('/forms') do
   if session[:user_id] != nil
     redirect('/')
   end
 end
 
-before('/quiz/all/:search') do
+# Locks page for everyone except admins
+#
+# @session [Integer] admin, 1 means user is admin, 0 means user is not admin
+before('/all/*') do
   if session[:admin] != 1
     redirect('/')
+  end
+end
+
+# Validates values before post signup
+#
+# @param [String] name, The name of the owner of the new user account
+# @param [String] uid, Means unique identifier, A unique username for the new account
+# @param [String] pwd, The password of the new account
+# @param [String] pwd_confirm, Repeated password for validation
+#
+# @see Model#create_account
+before('/signup') do
+  if params[:uid] == "" || params[:name] == "" || params[:pwd] == "" || params[:pwd_confirm] == "" 
+    redirect('/forms?error=field-empty');
+  end
+  if params[:pwd] != params[:pwd_confirm]
+    redirect('/forms?error=pwd-match');
+  end
+  if params[:uid] !=~ /^\w*$/
+    redirect('/forms?error=faulty-uid');
+  end
+  if uid_taken(params[:uid]) != false
+    redirect('/forms?error=uid-taken');
+  end
+end
+
+# Validates values before post login
+#
+# @param [String] uid, Means unique identifier, A unique username for the new account
+# @param [String] pwd, The password of the new account
+#
+# @see Model#check_login
+before('/login') do
+  if params[:uid] == "" || params[:pwd] == ""
+    redirect('/forms?error=field-empty');
+  end
+  if params[:uid] !~ /^[a-zA-Z0-9]*$/
+    redirect('/forms?error=faulty-uid');
   end
 end
 
@@ -37,7 +86,6 @@ get('/') do
 end
 
 # Display login/signup page
-#
 get('/forms') do
   slim(:forms)
 end
@@ -51,7 +99,9 @@ end
 #
 # @see Model#create_account
 post('/signup') do
-  create_account(params)
+  id = create_account(params)
+  session[:user_id] = id
+  session[:user_uid] = params[:uid]
   redirect('/')
 end
 
@@ -62,12 +112,18 @@ end
 #
 # @see Model#login
 post('/login') do
-  login(params)
+  result = check_login(params[:uid], params[:pwd])
+  if result == false
+    redirect('/forms?error=faulty-login');
+  end
+  p result
+  session[:user_id] = result['id']
+  session[:user_uid] = result['uid']
+  session[:admin] = result['admin']
   redirect('/')
 end
 
 # Logs the user out of the account they're logged into
-# 
 post('/logout') do
   session[:user_id] = nil
   session[:user_uid] = nil
@@ -98,7 +154,7 @@ end
 # Corrent state: only really shows whether you own the quiz or not
 # Meant to allow you to play the quiz
 #
-# @param [Integer] id, The id of the quiz
+# @param [Integer] :id, The id of the quiz
 # @session [Integer] user_id, The id of the visitor
 #
 # @see Model#access_quiz
@@ -111,7 +167,7 @@ end
 
 # Display quiz-editor page
 #
-# @param [Integer] id, The id of the quiz
+# @param [Integer] :id, The id of the quiz
 # @session [Integer] user_id, The id of the visitor
 #
 # @see Model#access_quiz
@@ -125,7 +181,7 @@ end
 
 # Updates quiz information
 #
-# @param [Integer] id, The id of the quiz
+# @param [Integer] :id, The id of the quiz
 # @param [Integer] delete, Defined as 1 if the quiz should be deleted
 # @param [String] name, The name of the quiz
 # @param [String] desc, A description of the quiz
@@ -148,11 +204,19 @@ post('/quiz/:id/update') do # används för både update (inklusive add owner) &
   redirect('/')
 end
 
+# Page where admins can see all quizzes in database
+# 
+# @see Model#fetch_all_quizzes
 get('/all') do
   quizzes = fetch_all_quizzes('')
   slim(:"quiz/all", locals:{quizzes:quizzes})
 end
 
+# Allows admins to specify name of quizzes to see by writing a search-request in the url
+#
+# @param [String] :search, The search specifying the likes of the name of the quiz
+# 
+# @see Model#fetch_all_quizzes
 get('/all/:search') do
   quizzes = fetch_all_quizzes(params[:search])
   slim(:"quiz/all", locals:{quizzes:quizzes})

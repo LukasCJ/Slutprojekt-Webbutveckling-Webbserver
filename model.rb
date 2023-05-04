@@ -20,73 +20,64 @@ module Model
         return routes.join("|")
     end
 
-    # Creates an account and logs user in
+    # Checks if username given on signup (and login) is taken
+    #
+    # @params [String] uid, The given username
+    #
+    # @return [Any] result of query if a match is found, else false
+    def uid_taken(uid)
+
+        db = conn("db/q.db")
+        query = "SELECT * FROM users WHERE uid = ? LIMIT 1"
+        result = db.execute(query, uid).first
+        db.close
+
+        if result
+            return result
+        end
+        return false
+    end
+
+    # Validates username and password given on login
+    #
+    # @params [String] uid, The given username
+    # @params [String] pwd, The given passwprd
+    #
+    # @return [Any] result of query if information is valid, else false
+    #
+    # @see Model#uid_taken
+    def check_login(uid, pwd)
+
+        result = uid_taken(uid)
+        p result
+
+        if result != false
+            pwdigest = result['pwdigest']
+            if BCrypt::Password.new(pwdigest) == pwd
+                return result
+            end
+        end
+        return false
+    end
+
+    # Creates an account for the user
     #
     # @param [Hash] params, Form data
     # @option params [String] name, The name of the owner of the new user account
     # @option params [String] uid, A unique username for the new account
     # @option params [String] pwd, The password of the new account
-    # @option params [String] pwd_confirm, Repeated password for validation
     def create_account(params)
         name = params[:name]
-        uid = params[:uid] # todo: skapa validering som kollar om användarnamnet redan finns
-        pwd = params[:pwd]
-        pwd_confirm = params[:pwd_confirm]
-      
-        if pwd == pwd_confirm
-        
-            pwdigest = BCrypt::Password.create(pwd)
-        
-            db = conn("db/q.db")
-            query = "INSERT INTO users (name, uid, pwdigest) VALUES (?, ?, ?) RETURNING id"
-            id = db.execute(query, name, uid, pwdigest).first['id']
-            db.close
-
-            p id
-
-            session[:user_id] = id
-            session[:user_uid] = uid
-        else
-            puts "Lösenorden matchar inte."
-            redirect('/forms?error=pwdmatch')
-        end
-    end
-
-    # Logs user in
-    #
-    # @param [Hash] params, Form data
-    # @option params [String] uid, The unique account username
-    # @option params [String] pwd, The password of the account
-    def login(params)
-        if params[:uid] == nil || params[:pwd] == nil
-            puts "Angiven data inte fullständig."
-            redirect('/forms?error=empty')
-        end
-        
         uid = params[:uid]
         pwd = params[:pwd]
-        
+        pwdigest = BCrypt::Password.create(pwd)
+    
         db = conn("db/q.db")
-        query = "SELECT * FROM users WHERE uid = ? LIMIT 1"
-        result = db.execute(query, uid).first
+        query = "INSERT INTO users (name, uid, pwdigest) VALUES (?, ?, ?) RETURNING id"
+        id = db.execute(query, name, uid, pwdigest).first['id']
         db.close
-        
-        if result
-        
-            pwdigest = result['pwdigest']
-        
-            if BCrypt::Password.new(pwdigest) == pwd
-                session[:user_id] = result['id']
-                session[:user_uid] = result['uid']
-                session[:admin] = result['admin']
-            else
-                puts "Fel lösenord."
-                redirect('/forms?error=wrongpwd')
-            end
-        else
-            puts "Fel användarnamn."
-            redirect('/forms?error=wrongusername')
-        end
+
+        return id
     end
 
     # Fetches the quizzes that the user owns
@@ -165,16 +156,6 @@ module Model
     def create_quiz(params, creator_id)
         content = JSON.parse(params[:content])
         owners = params[:owners].split(',').map(&:lstrip) # delar in strängen i en array utefter komma-tecken mellan användarnamnen, tar sedan bort whitespace i början och slutet av varje element
-        
-        # validering
-        # p "content: #{content}"
-        # content.each do |q|
-        #     if content['text'].class != String || content['text'].length == 0
-        #         redirect('/quiz/new?error="no-question"')
-        #     end
-        #     if content['text'].class != String || content['text'].length == 0
-        #         redirect('/quiz/new?error="no-question"')
-        #     end
 
         db = conn("db/q.db")
         query = "INSERT INTO quizzes (name, desc) VALUES (?, ?) RETURNING id"
@@ -302,6 +283,10 @@ module Model
         end
     end
 
+    # Deletes quiz and rows of other tables related to it
+    #
+    # @param [SQLite3::Database] db, The database
+    # @param [Integer] quiz_id, The id for the quiz to be deleted
     def delete_quiz(db, quiz_id)
         query = "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)"
         db.execute(query, quiz_id)

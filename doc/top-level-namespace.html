@@ -137,6 +137,54 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="top-level-namespace.html#GET__all-instance_method" title="#GET /all (instance method)">#<strong>GET /all</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Page where admins can see all quizzes in database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="top-level-namespace.html#GET__all__search-instance_method" title="#GET /all/:search (instance method)">#<strong>GET /all/:search</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Allows admins to specify name of quizzes to see by writing a search-request in the url.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="top-level-namespace.html#GET__forms-instance_method" title="#GET /forms (instance method)">#<strong>GET /forms</strong>  &#x21d2; Object </a>
     
 
@@ -296,7 +344,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Updates quiz information Current state: doesn’t work.</p>
+<p>Updates quiz information.</p>
 </div></span>
   
 </li>
@@ -363,7 +411,7 @@
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Model.html" title="Model (module)">Model</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">#access_quiz</a></span>, <span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">#check_login</a></span>, <span class='object_link'><a href="Model.html#conn-instance_method" title="Model#conn (method)">#conn</a></span>, <span class='object_link'><a href="Model.html#create_account-instance_method" title="Model#create_account (method)">#create_account</a></span>, <span class='object_link'><a href="Model.html#create_quiz-instance_method" title="Model#create_quiz (method)">#create_quiz</a></span>, <span class='object_link'><a href="Model.html#fetch_owned_quizzes-instance_method" title="Model#fetch_owned_quizzes (method)">#fetch_owned_quizzes</a></span>, <span class='object_link'><a href="Model.html#login-instance_method" title="Model#login (method)">#login</a></span>, <span class='object_link'><a href="Model.html#prepare_edit-instance_method" title="Model#prepare_edit (method)">#prepare_edit</a></span>, <span class='object_link'><a href="Model.html#update_quiz-instance_method" title="Model#update_quiz (method)">#update_quiz</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">#access_quiz</a></span>, <span class='object_link'><a href="Model.html#all_of-instance_method" title="Model#all_of (method)">#all_of</a></span>, <span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">#check_login</a></span>, <span class='object_link'><a href="Model.html#conn-instance_method" title="Model#conn (method)">#conn</a></span>, <span class='object_link'><a href="Model.html#create_account-instance_method" title="Model#create_account (method)">#create_account</a></span>, <span class='object_link'><a href="Model.html#create_quiz-instance_method" title="Model#create_quiz (method)">#create_quiz</a></span>, <span class='object_link'><a href="Model.html#delete_quiz-instance_method" title="Model#delete_quiz (method)">#delete_quiz</a></span>, <span class='object_link'><a href="Model.html#fetch_all_quizzes-instance_method" title="Model#fetch_all_quizzes (method)">#fetch_all_quizzes</a></span>, <span class='object_link'><a href="Model.html#fetch_owned_quizzes-instance_method" title="Model#fetch_owned_quizzes (method)">#fetch_owned_quizzes</a></span>, <span class='object_link'><a href="Model.html#prepare_edit-instance_method" title="Model#prepare_edit (method)">#prepare_edit</a></span>, <span class='object_link'><a href="Model.html#uid_taken-instance_method" title="Model#uid_taken (method)">#uid_taken</a></span>, <span class='object_link'><a href="Model.html#update_quiz-instance_method" title="Model#update_quiz (method)">#update_quiz</a></span></p>
 
 
   <div id="instance_method_details" class="method_details_list">
@@ -398,19 +446,141 @@
       <pre class="lines">
 
 
-16
-17
-18
-19
-20</pre>
+93
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 16</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 93</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_check_login'><span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">check_login</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_quizzes'>quizzes</span> <span class='op'>=</span> <span class='id identifier rubyid_fetch_owned_quizzes'><span class='object_link'><a href="Model.html#fetch_owned_quizzes-instance_method" title="Model#fetch_owned_quizzes (method)">fetch_owned_quizzes</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_quizzes'>quizzes</span> <span class='op'>=</span> <span class='id identifier rubyid_fetch_owned_quizzes'><span class='object_link'><a href="Model.html#fetch_owned_quizzes-instance_method" title="Model#fetch_owned_quizzes (method)">fetch_owned_quizzes</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:index</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>quizzes:</span><span class='id identifier rubyid_quizzes'>quizzes</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="GET__all-instance_method">
+  
+    #<strong>GET /all</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Page where admins can see all quizzes in database</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Model.html#fetch_all_quizzes-instance_method" title="Model#fetch_all_quizzes (method)">Model#fetch_all_quizzes</a></span></li>
+    
+  </ul>
+
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app.rb', line 214</span>
+
+<span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/all</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_quizzes'>quizzes</span> <span class='op'>=</span> <span class='id identifier rubyid_fetch_all_quizzes'><span class='object_link'><a href="Model.html#fetch_all_quizzes-instance_method" title="Model#fetch_all_quizzes (method)">fetch_all_quizzes</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/all&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>quizzes:</span><span class='id identifier rubyid_quizzes'>quizzes</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="GET__all__search-instance_method">
+  
+    #<strong>GET /all/:search</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows admins to specify name of quizzes to see by writing a search-request in the url</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>:search,</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The search specifying the likes of the name of the quiz</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Model.html#fetch_all_quizzes-instance_method" title="Model#fetch_all_quizzes (method)">Model#fetch_all_quizzes</a></span></li>
+    
+  </ul>
+
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+224
+225
+226
+227</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app.rb', line 224</span>
+
+<span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/all/:search</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_quizzes'>quizzes</span> <span class='op'>=</span> <span class='id identifier rubyid_fetch_all_quizzes'><span class='object_link'><a href="Model.html#fetch_all_quizzes-instance_method" title="Model#fetch_all_quizzes (method)">fetch_all_quizzes</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:search</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/all&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>quizzes:</span><span class='id identifier rubyid_quizzes'>quizzes</span><span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -445,12 +615,12 @@
       <pre class="lines">
 
 
-24
-25
-26</pre>
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 24</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 99</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/forms</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
   <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:forms</span><span class='rparen'>)</span>
@@ -483,7 +653,7 @@
   
     <li>
       
-        <span class='name'>id,</span>
+        <span class='name'>:id,</span>
       
       
         <span class='type'>(<tt>Integer</tt>)</span>
@@ -515,27 +685,21 @@
       <pre class="lines">
 
 
-89
-90
-91
-92
-93
-94
-95
-96
-97</pre>
+165
+166
+167
+168
+169
+170</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 89</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 165</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/quiz/:id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_check_login'><span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">check_login</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
-  
-  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_access_quiz'><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">access_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_access_quiz'><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">access_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:admin</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_quiz'>quiz</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>quiz</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
-  <span class='id identifier rubyid_access'>access</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
 
-  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/index&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>access:</span><span class='id identifier rubyid_access'>access</span><span class='comma'>,</span> <span class='label'>quiz:</span><span class='id identifier rubyid_quiz'>quiz</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/index&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>access:</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>quiz:</span><span class='id identifier rubyid_quiz'>quiz</span><span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -565,7 +729,7 @@
   
     <li>
       
-        <span class='name'>id,</span>
+        <span class='name'>:id,</span>
       
       
         <span class='type'>(<tt>Integer</tt>)</span>
@@ -599,27 +763,21 @@
       <pre class="lines">
 
 
-106
-107
-108
-109
-110
-111
-112
-113
-114</pre>
+179
+180
+181
+182
+183
+184</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 106</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 179</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/quiz/:id/edit</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_check_login'><span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">check_login</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
-
-  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_access_quiz'><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">access_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_access'>access</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_access_quiz'><span class='object_link'><a href="Model.html#access_quiz-instance_method" title="Model#access_quiz (method)">access_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:admin</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_quiz'>quiz</span> <span class='op'>=</span> <span class='id identifier rubyid_prepare_edit'><span class='object_link'><a href="Model.html#prepare_edit-instance_method" title="Model#prepare_edit (method)">prepare_edit</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>quiz</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/edit&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>access:</span><span class='id identifier rubyid_access'>access</span><span class='comma'>,</span> <span class='label'>quiz:</span><span class='id identifier rubyid_quiz'>quiz</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/edit&quot;</span><span class='comma'>,</span> <span class='label'>locals:</span><span class='lbrace'>{</span><span class='label'>access:</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>quiz:</span><span class='id identifier rubyid_quiz'>quiz</span><span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -654,16 +812,14 @@
       <pre class="lines">
 
 
-62
-63
-64
-65</pre>
+139
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 62</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 139</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/quiz/new</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_check_login'><span class='object_link'><a href="Model.html#check_login-instance_method" title="Model#check_login (method)">check_login</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;quiz/new&quot;</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -730,7 +886,7 @@
   <p class="tag_title">See Also:</p>
   <ul class="see">
     
-      <li><span class='object_link'><a href="Model.html#login-instance_method" title="Model#login (method)">Model#login</a></span></li>
+      <li>Model#login</li>
     
   </ul>
 
@@ -742,16 +898,18 @@
       <pre class="lines">
 
 
-47
-48
-49
-50</pre>
+124
+125
+126
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 124</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/login</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_login'><span class='object_link'><a href="Model.html#login-instance_method" title="Model#login (method)">login</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_uid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_uid'>uid</span>
   <span class='id identifier rubyid_redirect'>redirect</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -787,14 +945,14 @@
       <pre class="lines">
 
 
-54
-55
-56
-57
-58</pre>
+131
+132
+133
+134
+135</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 54</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 131</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/logout</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
   <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
@@ -818,7 +976,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Updates quiz information Current state: doesn’t work</p>
+<p>Updates quiz information</p>
 
 
   </div>
@@ -829,7 +987,7 @@
   
     <li>
       
-        <span class='name'>id,</span>
+        <span class='name'>:id,</span>
       
       
         <span class='type'>(<tt>Integer</tt>)</span>
@@ -957,16 +1115,32 @@
       <pre class="lines">
 
 
-129
-130
-131
-132</pre>
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 198</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/quiz/:id/update</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='comment'># används för både update (inklusive add owner) &amp; delete
-</span>  <span class='id identifier rubyid_update_quiz'><span class='object_link'><a href="Model.html#update_quiz-instance_method" title="Model#update_quiz (method)">update_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+</span>  <span class='id identifier rubyid_quiz_id'>quiz_id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+
+  <span class='id identifier rubyid_db'>db</span> <span class='op'>=</span> <span class='id identifier rubyid_conn'><span class='object_link'><a href="Model.html#conn-instance_method" title="Model#conn (method)">conn</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>db/q.db</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:delete</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_delete_quiz'><span class='object_link'><a href="Model.html#delete_quiz-instance_method" title="Model#delete_quiz (method)">delete_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_db'>db</span><span class='comma'>,</span> <span class='id identifier rubyid_quiz_id'>quiz_id</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_update_quiz'><span class='object_link'><a href="Model.html#update_quiz-instance_method" title="Model#update_quiz (method)">update_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_db'>db</span><span class='comma'>,</span> <span class='id identifier rubyid_quiz_id'>quiz_id</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
   <span class='id identifier rubyid_redirect'>redirect</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1077,16 +1251,16 @@
       <pre class="lines">
 
 
-76
-77
-78
-79</pre>
+152
+153
+154
+155</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 152</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/quiz/create</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_create_quiz'><span class='object_link'><a href="Model.html#create_quiz-instance_method" title="Model#create_quiz (method)">create_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_quiz'><span class='object_link'><a href="Model.html#create_quiz-instance_method" title="Model#create_quiz (method)">create_quiz</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_redirect'>redirect</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1197,16 +1371,20 @@
       <pre class="lines">
 
 
-36
-37
-38
-39</pre>
+111
+112
+113
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 111</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/signup</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
-  <span class='id identifier rubyid_create_account'><span class='object_link'><a href="Model.html#create_account-instance_method" title="Model#create_account (method)">create_account</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_create_account'><span class='object_link'><a href="Model.html#create_account-instance_method" title="Model#create_account (method)">create_account</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:user_uid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:uid</span><span class='rbracket'>]</span>
   <span class='id identifier rubyid_redirect'>redirect</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1219,7 +1397,7 @@
 </div>
 
       <div id="footer">
-  Generated on Mon Apr 10 01:10:59 2023 by
+  Generated on Tue May  2 11:19:15 2023 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.32 (ruby-3.1.2).
 </div>
