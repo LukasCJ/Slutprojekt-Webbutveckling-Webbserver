@@ -16,7 +16,7 @@ module Model
     # @params [String] routes, Describes routes to prepare for before-block
     #
     # @return [String] string of multiple routes to be used with one before-block
-    def all_of(*routes)
+    def all_of(*routes) # OBS: används inte nu pga en ändring jag gjorde emot slutet, men jag lämnar den här eftersom den kan bli användbar om jag fortsätter på sidan i framtiden.
         return routes.join("|")
     end
 

@@ -16,12 +16,12 @@ include Model
 #
 # @see Model#all_of
 before do
-  if request.get?
-    if request.path_info != '/forms'
+  if request.get? # om det är en get-route
+    if request.path_info != '/forms' # om det inte är sidan /forms
       if session[:user_id] == nil
         redirect('/forms')
       end
-    else
+    else # om det är sidan /forms
       if session[:user_id] != nil
         redirect('/')
       end
