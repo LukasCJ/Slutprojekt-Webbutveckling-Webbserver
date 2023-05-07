@@ -228,7 +228,7 @@ end
 # @see Model#fetch_quizzes
 get('/all') do
   quizzes = fetch_quizzes('')
-  slim(:"quiz/all", locals:{quizzes:quizzes})
+  slim(:all, locals:{quizzes:quizzes})
 end
 
 # Allows admins to specify name of quizzes to see by writing a search-request in the url
@@ -238,5 +238,5 @@ end
 # @see Model#fetch_quizzes
 get('/all/:search') do
   quizzes = fetch_quizzes(params[:search])
-  slim(:"quiz/all", locals:{quizzes:quizzes})
+  slim(:all, locals:{quizzes:quizzes})
 end
