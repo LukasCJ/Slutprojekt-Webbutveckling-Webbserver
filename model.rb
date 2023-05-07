@@ -263,11 +263,12 @@ module Model
     # @return [Array] containing the data of all fetched quizzes
     def fetch_quizzes(search)
         db = conn("db/q.db")
+        sub_query = "SELECT uid FROM users INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id WHERE quizzes_owners.quiz_id = quizzes.id LIMIT 1"
         if search == ''
-            query = "SELECT * FROM quizzes ORDER BY RANDOM()"
+            query = "SELECT *, (#{sub_query}) AS creator FROM quizzes ORDER BY RANDOM() LIMIT 50"
             quizzes = db.execute(query)
         else
-            query = "SELECT * FROM quizzes WHERE name LIKE ? ORDER BY RANDOM()"
+            query = "SELECT *, (#{sub_query}) AS creator FROM quizzes WHERE name LIKE ? ORDER BY RANDOM() LIMIT 50"
             quizzes = db.execute(query, "%#{search}%")
         end
         db.close
