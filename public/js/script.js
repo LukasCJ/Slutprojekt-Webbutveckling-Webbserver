@@ -399,5 +399,7 @@ $('#added_owners').on('click', '.owner_container', function() {
     }
 });
 
+$('.error')
+
 });
 

@@ -12,3 +12,5 @@ section#forms
       button.button type="submit" name="signup" Gå med
   .button_container
     button.button.switch_forms type="button" Byt formulär
+- if err != 'none' 
+    .error = err[:message]

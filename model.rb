@@ -292,4 +292,30 @@ module Model
         return users
     end
 
+    # Prepares an error message.
+    #
+    # @param [String] err, The type of error
+    #
+    # @return [Hash] containing the data of the error
+    def prep_error(err, cool)
+        case err
+        when 'field-empty'
+            message = 'You haven\'t filled in all fields.'
+        when 'pwd-match'
+            message = 'The passwords doesn\'t match.'
+        when 'faulty-uid'
+            message = 'That username isn\'t allowed.'
+        when 'uid-taken'
+            message = 'That username is taken.'
+        when 'cool-down'
+            if cool != nil && cool > Time.now
+                message = "You can\'t do that right now (wait #{(cool - Time.now).to_i} seconds)."
+            else
+                message = 'The cool-down is finished.'
+            end
+        else 
+            message = 'An error has occured.'
+        end
+        return {error:err, message:message}
+    end
 end

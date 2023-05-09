@@ -76,17 +76,52 @@ before('/login') do
   end
 end
 
+# Checks and updates cooldown for post-requests that aims to make a change in the database, and for login
+#
+# @session [Time] cool, for cool-down, the time of when a cool-down is over, used to block quick repeats of certain actions
+before(all_of('/login', '/signup', '/quiz/create', '/quiz/*/update')) do
+  if session[:cool] != nil 
+    if session[:cool] > Time.now
+      tmp = session[:cool]
+      session[:cool] = Time.now + ( 2 + (tmp - Time.now)**2 )
+      path = request.path_info
+      if path == '/login' || path == '/signup'
+        redirect('/forms?error=cool-down')
+      else
+        redirect('/?error=cool-down')
+      end
+    end
+  end
+end
+
+# Sets cooldown after post-requests that aims to make a change in the database, and after login
+#
+# @session [Time] cool, for cool-down, the time of when a cool-down is over
+after(all_of('/login', '/signup', '/quiz/create', '/quiz/*/update')) do
+  session[:cool] = Time.now + 4
+end
+
 # Display landing page
 #
 # @session [Integer] user_id, The id of the user's account on the databse, is asigned as session at login, If not defined the user is sent to page for login/signup
 get('/') do
   quizzes = fetch_owned_quizzes(session[:user_id])
-  slim(:index, locals:{quizzes:quizzes})
+  if params[:error] != nil
+    err = prep_error(params[:error], session[:cool])
+    slim(:index, locals:{quizzes:quizzes, err:err})
+  else
+    slim(:index, locals:{quizzes:quizzes, err:'none'})
+  end
 end
 
 # Display login/signup page
 get('/forms') do
-  slim(:forms)
+  if params[:error] != nil
+    err = prep_error(params[:error], session[:cool])
+    slim(:forms, locals:{err:err})
+  else
+    slim(:forms, locals:{err:'none'})
+  end
 end
 
 # Inserts a new user account into the database, logs the user into that account and redirects the user to landing page

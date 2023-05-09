@@ -569,3 +569,13 @@ section#quiz .fin_container {
     column-gap: calc(var(--len1) / 2);
     border-radius: var(--b);
 }
+
+.error {
+    background-color: var(--gcolor21);
+    border-radius: var(--b) 0 0 0;
+    padding: calc(var(--len1)/2);
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    color: var(--gcolor11);
+}

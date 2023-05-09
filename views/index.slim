@@ -15,3 +15,5 @@ section#yours
                     - if quiz["desc"].length > 0
                         div.desc_container
                             p.desc = quiz["desc"]
+- if err != 'none' 
+    .error = err[:message]
