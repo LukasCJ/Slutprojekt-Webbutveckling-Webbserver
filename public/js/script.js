@@ -399,7 +399,22 @@ $('#added_owners').on('click', '.owner_container', function() {
     }
 });
 
-$('.error')
+if($('.error').text().includes('wait')) {
+    var time_elem = $('span.time');
+    var time = parseInt(time_elem.text());
+    console.log(time_elem.text())
+    console.log(time)
+    var cool = setInterval(function() {
+        if(time < 1) {
+            $('.error').empty();
+            $('.error').append('<p>The cool-down is finished.</p>');
+            clearInterval(cool);
+        } else {
+            time -= 1;
+            time_elem.text(String(time));
+        }
+    }, 1000);
+}
 
 });
 

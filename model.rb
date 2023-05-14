@@ -16,7 +16,7 @@ module Model
     # @params [String] routes, Describes routes to prepare for before-block
     #
     # @return [String] string of multiple routes to be used with one before-block
-    def all_of(*routes) # OBS: används inte nu pga en ändring jag gjorde emot slutet, men jag lämnar den här eftersom den kan bli användbar om jag fortsätter på sidan i framtiden.
+    def all_of(*routes)
         return routes.join("|")
     end
 
@@ -300,22 +300,44 @@ module Model
     def prep_error(err, cool)
         case err
         when 'field-empty'
-            message = 'You haven\'t filled in all fields.'
+            message = '<p>You haven\'t filled in all fields.</p>'
         when 'pwd-match'
-            message = 'The passwords doesn\'t match.'
+            message = '<p>The passwords don\'t match.</p>'
         when 'faulty-uid'
-            message = 'That username isn\'t allowed.'
+            message = '<p>That username isn\'t allowed.</p>'
         when 'uid-taken'
-            message = 'That username is taken.'
+            message = '<p>That username is taken.</p>'
         when 'cool-down'
             if cool != nil && cool > Time.now
-                message = "You can\'t do that right now (wait #{(cool - Time.now).to_i} seconds)."
+                message = "<p>You can\'t do that right now (wait <span class='time'>#{(cool - Time.now).to_i}</span> seconds).</p>"
             else
-                message = 'The cool-down is finished.'
+                message = "<p>The cool-down is finished.</p>"
             end
         else 
-            message = 'An error has occured.'
+            message = '<p>An error has occured.</p>'
         end
         return {error:err, message:message}
+    end
+
+    # Returns a value for cooldown based on previous cooldown and current time
+    #
+    # @param [Time] cool, When the most recent cooldown ends/ended
+    # @param [Time] now, The current time
+    #
+    # @return [Time] when the new cooldown ends
+    def set_cooldown(cool, now)
+        if cool == nil || cool <= now
+            cool = now + 6
+        else
+            tmp = cool
+            if (tmp - now)*2 > 200
+              cool = now + 200
+            elsif (tmp - now)*2 < 6
+                cool = now + 6
+            else
+              cool = now + (tmp - now)*2
+            end
+        end
+        return cool
     end
 end

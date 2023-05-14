@@ -16,4 +16,4 @@ section#yours
                         div.desc_container
                             p.desc = quiz["desc"]
 - if err != 'none' 
-    .error = err[:message]
+    .error == err[:message]

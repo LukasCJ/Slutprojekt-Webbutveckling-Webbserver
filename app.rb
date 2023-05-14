@@ -80,16 +80,12 @@ end
 #
 # @session [Time] cool, for cool-down, the time of when a cool-down is over, used to block quick repeats of certain actions
 before(all_of('/login', '/signup', '/quiz/create', '/quiz/*/update')) do
-  if session[:cool] != nil 
-    if session[:cool] > Time.now
-      tmp = session[:cool]
-      session[:cool] = Time.now + ( 2 + (tmp - Time.now)**2 )
-      path = request.path_info
-      if path == '/login' || path == '/signup'
-        redirect('/forms?error=cool-down')
-      else
-        redirect('/?error=cool-down')
-      end
+  if session[:cool] != nil && session[:cool] > Time.now
+    path = request.path_info
+    if path == '/login' || path == '/signup'
+      redirect('/forms?error=cool-down')
+    else
+      redirect('/?error=cool-down')
     end
   end
 end
@@ -98,7 +94,7 @@ end
 #
 # @session [Time] cool, for cool-down, the time of when a cool-down is over
 after(all_of('/login', '/signup', '/quiz/create', '/quiz/*/update')) do
-  session[:cool] = Time.now + 4
+  session[:cool] = set_cooldown(session[:cool], Time.now)
 end
 
 # Display landing page
