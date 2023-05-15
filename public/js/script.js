@@ -416,5 +416,17 @@ if($('.error').text().includes('wait')) {
     }, 1000);
 }
 
+$('.toggle_menu').on('click', function() {
+    if($('nav').hasClass('open')) {
+        $('nav').removeClass('open');
+        $('body').removeClass('noscroll');
+        $('.toggle_menu').text('Open');
+    } else {
+        $('nav').addClass('open');
+        $('body').addClass('noscroll');
+        $('.toggle_menu').text('Close');
+    }
+});
+
 });
 

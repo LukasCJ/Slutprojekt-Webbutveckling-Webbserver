@@ -10,13 +10,15 @@ html lang="en"
 body
     - if session[:user_id] != nil
         header
+            a.button.toggle_menu href="#top" Open
             nav
                 a.button href="/" Hem
+                - if session[:admin] == 1
+                    a.button href="/all" Alla
                 a.button href="/quiz/new" Skapa
                 form method="post" action="/logout"
                     button.button type="submit" Logga ut
-                - if session[:admin] == 1
-                    a.button href="/all" Alla
+                button.button.toggle_menu Open
     ==yield
     - if session[:user_id] != nil
         footer
