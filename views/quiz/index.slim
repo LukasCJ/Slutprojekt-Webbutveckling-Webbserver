@@ -1,12 +1,13 @@
 section#quiz data-quiz='#{quiz.to_json}'
     .container
         h2.active_quiz = "Quiz: #{quiz['name']}"
-        - if access 
+        - if access != 0
             div.ready_container
                 h2.ready Ready?
                 button.button.play type="button" Let's go
         - else 
             div.denied_container
                 h2.denied You don't have access to this quiz.
-                a.button href="/" Return
-                button.button.request_access type="button" Request access
+                .left
+                    a.button href="/" Return
+                    button.button.request_access type="button" Request access

@@ -10,7 +10,7 @@ html lang="en"
 body
     - if session[:user_id] != nil
         header
-            a.button.toggle_menu href="#top" Open
+            a.button.toggle_menu href="#top" Open Menu
             nav
                 a.button href="/" Hem
                 - if session[:admin] == 1
@@ -18,7 +18,7 @@ body
                 a.button href="/quiz/new" Skapa
                 form method="post" action="/logout"
                     button.button type="submit" Logga ut
-                button.button.toggle_menu Open
+                button.button.toggle_menu Open Menu
     ==yield
     - if session[:user_id] != nil
         footer

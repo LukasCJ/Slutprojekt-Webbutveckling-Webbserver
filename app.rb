@@ -208,9 +208,13 @@ end
 # @see Model#access_quiz
 get('/quiz/:id') do
   result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
-  quiz = result['quiz']
-
-  slim(:"quiz/index", locals:{access:result['access'], quiz:quiz})
+  if result != 'no-quiz'
+    quiz = result['quiz']
+    p result['access']
+    slim(:"quiz/index", locals:{access:result['access'], quiz:quiz})
+  else
+    redirect('/?error=no-quiz')
+  end
 end
 
 # Display quiz-editor page
@@ -222,12 +226,11 @@ end
 # @see Model#prepare_edit
 get('/quiz/:id/edit') do
   result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
-  quiz = result['quiz']
-  quiz['content_json'] = quiz['content'].to_json
-
   if result['access'] == 0
-    redirect('/')
+    redirect('/?error=no-access')
   else
+    quiz = result['quiz']
+    quiz['content_json'] = quiz['content'].to_json
     slim(:"quiz/edit", locals:{access:result['access'], quiz:quiz})
   end
 end
@@ -245,13 +248,18 @@ end
 # 
 # @see Model#update_quiz
 post('/quiz/:id/update') do # används för både update (inklusive add owner) & delete
-  quiz_id = params[:id].to_i
-  if params[:delete].to_i == 1
-    delete_quiz(quiz_id)
+  result = access_quiz(params[:id], {'id' => session[:user_id], 'admin' => session[:admin]})
+  if result['access'] != 0
+    quiz_id = params[:id].to_i
+    if params[:delete].to_i == 1
+      delete_quiz(quiz_id)
+    else
+      update_quiz(quiz_id, params)
+    end
+    redirect('/')
   else
-    update_quiz(quiz_id, params)
+    redirect('/?error=no-access')
   end
-  redirect('/')
 end
 
 # Page where admins can see all quizzes in database

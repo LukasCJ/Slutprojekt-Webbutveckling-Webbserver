@@ -103,47 +103,54 @@ module Model
         db = conn("db/q.db")
         query = "SELECT * FROM quizzes WHERE id = ? LIMIT 1"
         quiz = db.execute(query, quiz_id).first
-        query = "SELECT users.id, users.uid, quizzes_owners.creator FROM users INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id WHERE quizzes_owners.quiz_id = ?"
-        quiz['owners'] = db.execute(query, quiz_id)
-    
-        if user['admin'] == 1
-            access = 2
-        else
-            access = 0
-            quiz['owners'].each do |owner|
-                if owner['id'] == user['id']
-                    if owner['creator'] == 1
-                        access = 2
-                    else
-                        access = 1
+
+        if quiz != nil
+
+            query = "SELECT users.id, users.uid, quizzes_owners.creator FROM users INNER JOIN quizzes_owners ON quizzes_owners.user_id = users.id WHERE quizzes_owners.quiz_id = ?"
+            quiz['owners'] = db.execute(query, quiz_id)
+        
+            if user['admin'] == 1
+                access = 2
+            else
+                access = 0
+                quiz['owners'].each do |owner|
+                    if owner['id'] == user['id']
+                        if owner['creator'] == 1
+                            access = 2
+                        else
+                            access = 1
+                        end
+                        break
                     end
                 end
             end
-        end
-    
-        query = "SELECT * FROM questions WHERE quiz_id = ?"
-        questions = db.execute(query, quiz_id)
-        query = "SELECT answers.* FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE questions.quiz_id = ?"
-        answers = db.execute(query, quiz_id)
-    
-        db.close
-    
-        quiz['content'] = []
-        questions.each do |question|
-            q = {}
-            q['answers'] = []
-            q['id'], q['text'] = question['local_id'], question['text']
-            answers.each do |answer|
-                if answer['question_id'] == question['id']
-                    a = {}
-                    a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
-                    q['answers'] << a
+        
+            query = "SELECT * FROM questions WHERE quiz_id = ?"
+            questions = db.execute(query, quiz_id)
+            query = "SELECT answers.* FROM answers INNER JOIN questions ON questions.id = answers.question_id WHERE questions.quiz_id = ?"
+            answers = db.execute(query, quiz_id)
+        
+            db.close
+        
+            quiz['content'] = []
+            questions.each do |question|
+                q = {}
+                q['answers'] = []
+                q['id'], q['text'] = question['local_id'], question['text']
+                answers.each do |answer|
+                    if answer['question_id'] == question['id']
+                        a = {}
+                        a['id'], a['text'], a['correct'] = answer['local_id'], answer['text'], answer['correct']
+                        q['answers'] << a
+                    end
                 end
+                quiz['content'] << q
             end
-            quiz['content'] << q
+        
+            return {'access' => access, 'quiz' => quiz}
+        else
+            return 'no-quiz'
         end
-    
-        return {'access' => access, 'quiz' => quiz}
     end
 
     # Creates a quiz in the database
@@ -277,6 +284,7 @@ module Model
 
     # Fetches all users that matches search
     #
+    # @param [Array] current, List of users already added
     # @param [String] search, Search-string for users' uids
     #
     # @return [Array] containing the data of all fetched users
@@ -307,6 +315,10 @@ module Model
             message = '<p>That username isn\'t allowed.</p>'
         when 'uid-taken'
             message = '<p>That username is taken.</p>'
+        when 'no-quiz'
+            message = '<p>That quiz doesn\'t exist.</p>'
+        when 'no-access'
+            message = '<p>You don\'t have access to that quiz.</p>'
         when 'cool-down'
             if cool != nil && cool > Time.now
                 message = "<p>You can\'t do that right now (wait <span class='time'>#{(cool - Time.now).to_i}</span> seconds).</p>"

@@ -402,8 +402,6 @@ $('#added_owners').on('click', '.owner_container', function() {
 if($('.error').text().includes('wait')) {
     var time_elem = $('span.time');
     var time = parseInt(time_elem.text());
-    console.log(time_elem.text())
-    console.log(time)
     var cool = setInterval(function() {
         if(time < 1) {
             $('.error').empty();
@@ -420,11 +418,11 @@ $('.toggle_menu').on('click', function() {
     if($('nav').hasClass('open')) {
         $('nav').removeClass('open');
         $('body').removeClass('noscroll');
-        $('.toggle_menu').text('Open');
+        $('.toggle_menu').text('Open Menu');
     } else {
         $('nav').addClass('open');
         $('body').addClass('noscroll');
-        $('.toggle_menu').text('Close');
+        $('.toggle_menu').text('Close Menu');
     }
 });
 
