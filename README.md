@@ -3,44 +3,24 @@ _Webbutveckling 2_
 
 </br>
 
-## Skisser
+## Skisser (desktop)
 
 </br>
 
-- **Resource**: ‘/’ & ‘/all’
-- **Format**: desktop.
-- **Kommentar**: ‘/all’ kommer endast skilja sig från ‘/’ på två sätt: titeln som säger “Dina quiz” säger “Alla quiz” istället, och att quizen i listan  i ‘/all’ kommer att ange skapare.
-- **Kommentar**: ‘/all’ är endast tillgänglig för admin.
-
-</br>
-
-- **Resource**: ‘/’ & ‘/all’
-- **Format**: mobile.
-
-</br>
-
-- **Resource**: ‘/forms’
-- **Format**: desktop & mobile.
+- **Resource**: ‘/’ (och ‘/all’)
+- ![Skiss för 'hem'](/skiss_hem.jpg "Skiss för 'hem'")
+- **Kommentar**: En stor skillnad för mobile-formatet kommer vara att knapparna hamnar under namnet i quiz_container.
 
 </br>
 
 - **Resource**: ‘/quiz/:id’
-- **Format**: desktop.
+- ![Skiss för 'quiz'](/skiss_quiz.jpg "Skiss för 'quiz'")
 
 </br>
 
-- **Resource**: ‘/quiz/:id’
-- **Format**: mobile.
-
-</br>
-
-- **Resource**: ‘/quiz/create’ & ‘/quiz/:id/edit’
-- **Format**: desktop.
-
-</br>
-
-- **Resource**: ‘/quiz/create’ & ‘/quiz/:id/edit’
-- **Format**: mobile.
+- **Resource**: ‘/quiz/create’ (och ‘/quiz/:id/edit’)
+- ![Skiss för 'skapa'](/skiss_skapa.jpg "Skiss för 'skapa'")
+- **Kommentar**: För mobile-formatet kommer de två stora containrarna vara under varandra istället för bredvid varandra.
 
 </br>
 
@@ -176,5 +156,18 @@ Färdigställde responsiv design och skrev analys.
 
 </br>
 
+## Testning
+_Google Lighthouse_
+
+- Prestanda: 100
+- Tillgänglighet: 100
+- Metoder: 100
+- SEO: 80
+  - Fel: 
+    - Sidor saknar metabeskrivningar.
+    - robots.txt saknas.
+
+</br>
+
 # Analys
-Jag har gjort en webbsida som är lämplig för syftet, dvs. att skapa och spela quiz. Sidan tillåter inloggning och navigation mellan sidor samt intuitiv skapning, redigering och slängning av quiz. Att spela quiz är också relativt intuitivt. Ett förbättringsområde däremot är att tillåta mer intuitiv delning av quiz, till exempel förmågan att bläddra bland existerande quiz och sökning av quiz. Det enda sättet för tillfället att få tillgång till någon annans quiz är genom att bli tillagd av skaparen. Men det huvudsakliga syftet var inte delning, utan endast skapning av quiz, och det är uppnått. Sidans design är relativt simpel, men tydlig, med lämplig kontrast mellan text och bakgrund. Sidans layout justeras dessutom responsivt för att passa användarens fönster/enhet.
+Jag har gjort en webbsida som uppnår målet, dvs. den tillåter dig att skapa och spela quiz. Sidan tillåter inloggning och navigation mellan sidor samt intuitiv skapning, redigering och slängning av quiz. Att spela quiz är också relativt intuitivt. Ett förbättringsområde däremot är att tillåta mer intuitiv delning av quiz, till exempel förmågan att bläddra bland existerande quiz och sökning av quiz. Det enda sättet för tillfället att få tillgång till någon annans quiz är genom att bli tillagd som ägare av skaparen. Men det huvudsakliga syftet var inte delning, utan endast privat skapning och spelande av quiz, och det är uppnått. Sidans design är relativt simpel, men tydlig, med lämplig kontrast mellan text och bakgrund. Sidans layout justeras dessutom responsivt för att passa användarens fönster/enhet.
